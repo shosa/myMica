@@ -1,0 +1,10 @@
+
+# # av:php5-engine
+AddHandler av-php82 .php
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
+RewriteRule ^webgre/(.*)$ webgre/$1 [L]
+ErrorDocument 404 /webgre/404.php
+ErrorDocument 403 /webgre/403.php
