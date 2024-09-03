@@ -110,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                         value="<?php echo htmlspecialchars(substr($appuntamento['data_appuntamento'], 11, 5)); ?>">
                                 </div>
 
-                                <button type="submit" class="btn btn-primary">Aggiorna Appuntamento</button>
+                                <button type="submit" class="btn btn-block btn-primary">Aggiorna Appuntamento</button>
                                 </form>
                             </div>
                         </div>

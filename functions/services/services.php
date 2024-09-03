@@ -10,19 +10,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Aggiungi nuovo servizio
         $nome_servizio = $_POST['nome_servizio'];
         $costo = $_POST['costo'];
+        $tempo_medio = $_POST['tempo_medio'];
 
-        $stmt = $pdo->prepare("INSERT INTO servizi (nome_servizio, costo) VALUES (?, ?)");
-        $stmt->execute([$nome_servizio, $costo]);
+        $stmt = $pdo->prepare("INSERT INTO servizi (nome_servizio, costo, tempo_medio) VALUES (?, ?, ?)");
+        $stmt->execute([$nome_servizio, $costo, $tempo_medio]);
         header("Location: services.php");
         exit;
     } elseif (isset($_POST['update_servizio'])) {
         // Modifica servizio esistente
         $id_servizio = $_POST['id_servizio'];
         $nome_servizio = $_POST['nome_servizio'];
+        $tempo_medio = $_POST['tempo_medio'];
         $costo = $_POST['costo'];
 
-        $stmt = $pdo->prepare("UPDATE servizi SET nome_servizio = ?, costo = ? WHERE id_servizio = ?");
-        $stmt->execute([$nome_servizio, $costo, $id_servizio]);
+        $stmt = $pdo->prepare("UPDATE servizi SET nome_servizio = ?, costo = ?, tempo_medio = ? WHERE id_servizio = ?");
+        $stmt->execute([$nome_servizio, $costo, $tempo_medio, $id_servizio]);
         header("Location: services.php");
         exit;
     } elseif (isset($_POST['delete_servizio'])) {
@@ -39,7 +41,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 $servizi = $pdo->query("SELECT * FROM servizi")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-
 <body>
     <div id="wrapper">
         <?php include(BASE_PATH . "/components/navbar.php"); ?>
@@ -52,36 +53,41 @@ $servizi = $pdo->query("SELECT * FROM servizi")->fetchAll(PDO::FETCH_ASSOC);
                     <div class="card mb-4">
                         <div class="card-header">
                             <button class="btn btn-primary btn-block" data-toggle="modal"
-                                data-target="#addServizioModal">Aggiungi
-                                Servizio</button>
+                                data-target="#addServizioModal">Aggiungi Servizio</button>
                         </div>
                         <div class="card-body">
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-
                                         <th>Nome Servizio</th>
-
                                         <th class="text-center">Azioni</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($servizi as $servizio): ?>
                                         <tr>
-
                                             <td><?php echo htmlspecialchars($servizio['nome_servizio']); ?></td>
-
                                             <td class="text-center">
-                                                <button class="btn  btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editServizioModal"
-                                                    data-id="<?php echo $servizio['id_servizio']; ?>"
-                                                    data-nome="<?php echo htmlspecialchars($servizio['nome_servizio']); ?>"
-                                                    data-prezzo="<?php echo htmlspecialchars($servizio['costo']); ?>"><i
-                                                        class="fal fa-pencil"></i></button>
-                                                <button class="btn  btn-danger btn-sm" data-toggle="modal"
-                                                    data-target="#deleteServizioModal"
-                                                    data-id="<?php echo $servizio['id_servizio']; ?>"><i
-                                                        class="fal fa-trash"></i></button>
+                                                <button class="btn btn-circle btn-secondary btn-sm dropdown" type="button"
+                                                    id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="false">
+                                                    <i class="fal fa-ellipsis-vertical"></i>
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                                        data-target="#editServizioModal"
+                                                        data-id="<?php echo $servizio['id_servizio']; ?>"
+                                                        data-nome="<?php echo htmlspecialchars($servizio['nome_servizio']); ?>"
+                                                        data-tempo="<?php echo htmlspecialchars($servizio['tempo_medio']); ?>"
+                                                        data-prezzo="<?php echo htmlspecialchars($servizio['costo']); ?>">
+                                                        <i class="fal fa-pencil"></i> Modifica
+                                                    </a>
+                                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                                        data-target="#deleteServizioModal"
+                                                        data-id="<?php echo $servizio['id_servizio']; ?>">
+                                                        <i class="fal fa-trash"></i> Elimina
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -96,7 +102,7 @@ $servizi = $pdo->query("SELECT * FROM servizi")->fetchAll(PDO::FETCH_ASSOC);
         <!-- Modale Aggiungi Servizio -->
         <div class="modal fade" id="addServizioModal" tabindex="-1" aria-labelledby="addServizioModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addServizioModalLabel">Aggiungi Servizio</h5>
@@ -112,8 +118,12 @@ $servizi = $pdo->query("SELECT * FROM servizi")->fetchAll(PDO::FETCH_ASSOC);
                                     required>
                             </div>
                             <div class="mb-3">
+                                <label for="tempo_medio" class="form-label">Tempo Medio</label>
+                                <input type="number" name="tempo_medio" id="tempo_medio" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
                                 <label for="costo" class="form-label">Prezzo</label>
-                                <input type="text" name="costo" id="costo" class="form-control" required>
+                                <input type="number" name="costo" id="costo" class="form-control" required>
                             </div>
                             <button type="submit" name="add_servizio" class="btn btn-block btn-primary">Aggiungi
                                 Servizio</button>
@@ -126,11 +136,13 @@ $servizi = $pdo->query("SELECT * FROM servizi")->fetchAll(PDO::FETCH_ASSOC);
         <!-- Modale Modifica Servizio -->
         <div class="modal fade" id="editServizioModal" tabindex="-1" aria-labelledby="editServizioModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editServizioModalLabel">Modifica Servizio</h5>
-                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                     <div class="modal-body">
                         <form action="services.php" method="POST">
@@ -141,10 +153,15 @@ $servizi = $pdo->query("SELECT * FROM servizi")->fetchAll(PDO::FETCH_ASSOC);
                                     required>
                             </div>
                             <div class="mb-3">
-                                <label for="edit_costo" class="form-label">Prezzo</label>
-                                <input type="text" name="costo" id="edit_costo" class="form-control" required>
+                                <label for="edit_tempo_medio" class="form-label">Tempo Medio</label>
+                                <input type="number" name="tempo_medio" id="edit_tempo_medio" class="form-control"
+                                    required>
                             </div>
-                            <button type="submit" name="update_servizio" class="btn btn-warning">Aggiorna
+                            <div class="mb-3">
+                                <label for="edit_costo" class="form-label">Prezzo</label>
+                                <input type="number" name="costo" id="edit_costo" class="form-control" required>
+                            </div>
+                            <button type="submit" name="update_servizio" class="btn btn-warning btn-block">Aggiorna
                                 Servizio</button>
                         </form>
                     </div>
@@ -155,11 +172,13 @@ $servizi = $pdo->query("SELECT * FROM servizi")->fetchAll(PDO::FETCH_ASSOC);
         <!-- Modale Elimina Servizio -->
         <div class="modal fade" id="deleteServizioModal" tabindex="-1" aria-labelledby="deleteServizioModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="deleteServizioModalLabel">Elimina Servizio</h5>
-                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                     <div class="modal-body">
                         <form action="services.php" method="POST">
@@ -182,11 +201,13 @@ $servizi = $pdo->query("SELECT * FROM servizi")->fetchAll(PDO::FETCH_ASSOC);
             var button = $(event.relatedTarget);
             var id = button.data('id');
             var nome = button.data('nome');
+            var tempo = button.data('tempo');
             var prezzo = button.data('prezzo');
 
             var modal = $(this);
             modal.find('#edit_id_servizio').val(id);
             modal.find('#edit_nome_servizio').val(nome);
+            modal.find('#edit_tempo_medio').val(tempo);
             modal.find('#edit_costo').val(prezzo);
         });
 

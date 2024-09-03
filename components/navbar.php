@@ -19,14 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
         <div class="sidebar-brand-icon">
             <img src="<?php echo BASE_URL ?>/img/roundLogo.png" alt="" width="40" height="40">
         </div>
-        <div class="sidebar-brand-text mx-3">WEBGRE </div>
+      
     </a>
 
     <!-- DIVISORE -->
     <hr class="sidebar-divider my-0">
     <li class="nav-item">
         <a id="home" class="nav-link" href="<?php echo BASE_URL ?>/index">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <i class="fas fa-fw fa-home"></i>
             <span>Dashboard</span></a>
     </li>
 
@@ -41,11 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
     <li class="nav-item">
         <a id="calendario" class="nav-link collapsed" href="<?php echo BASE_URL ?>/functions/calendar/calendario"
             aria-expanded="true" aria-controls="collapseProd">
-            <i class="far fa-calendar"></i>
+            <i class="fa fa-calendar"></i>
             <span>Calendario</span>
         </a>
     </li>
-
+    <hr class="sidebar-divider">
     <li class="nav-item">
         <a id="servizi" class="nav-link collapsed" href="<?php echo BASE_URL ?>/functions/services/services"
             aria-expanded="true" aria-controls="collapseProd">
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
             <span>Servizi</span>
         </a>
     </li>
-
+    <hr class="sidebar-divider">
     <li class="nav-item">
         <a id="clienti" class="nav-link collapsed" href="<?php echo BASE_URL ?>/functions/customers/customers"
             aria-expanded="true" aria-controls="collapseProd">
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
             <span>Clienti</span>
         </a>
     </li>
-
+    <hr class="sidebar-divider">
 </ul>
 <style>
     .border-width-6 {

@@ -110,11 +110,13 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
         <!-- Modale Aggiungi Cliente -->
         <div class="modal fade" id="addClienteModal" tabindex="-1" aria-labelledby="addClienteModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addClienteModalLabel">Aggiungi Cliente</h5>
-                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                     <div class="modal-body">
                         <form action="customers.php" method="POST">
@@ -124,10 +126,10 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
                             </div>
                             <div class="mb-3">
                                 <label for="numero_telefono" class="form-label">Numero di Telefono</label>
-                                <input type="text" name="numero_telefono" id="numero_telefono" class="form-control"
+                                <input type="tel" name="numero_telefono" id="numero_telefono" class="form-control"
                                     required>
                             </div>
-                            <button type="submit" name="add_cliente" class="btn btn-primary">Aggiungi Cliente</button>
+                            <button type="submit" name="add_cliente" class="btn btn-success btn-block">Aggiungi Cliente</button>
                         </form>
                     </div>
                 </div>
@@ -137,7 +139,7 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
         <!-- Modale Modifica Cliente -->
         <div class="modal fade" id="editClienteModal" tabindex="-1" aria-labelledby="editClienteModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editClienteModalLabel">Modifica Cliente</h5>
@@ -155,10 +157,10 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
                             </div>
                             <div class="mb-3">
                                 <label for="edit_numero_telefono" class="form-label">Numero di Telefono</label>
-                                <input type="text" name="numero_telefono" id="edit_numero_telefono" class="form-control"
+                                <input type="tel" name="numero_telefono" id="edit_numero_telefono" class="form-control"
                                     required>
                             </div>
-                            <button type="submit" name="update_cliente" class="btn btn-warning">Aggiorna
+                            <button type="submit" name="update_cliente" class="btn btn-warning btn-block">Aggiorna
                                 Cliente</button>
                         </form>
                     </div>
@@ -169,7 +171,7 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
         <!-- Modale Elimina Cliente -->
         <div class="modal fade" id="deleteClienteModal" tabindex="-1" aria-labelledby="deleteClienteModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="deleteClienteModalLabel">Elimina Cliente</h5>

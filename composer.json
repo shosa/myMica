@@ -1,6 +1,6 @@
 {
-    "name": "shosa/webgre",
-    "description": "Gestione Relazioni Estese EMMEGIEMME",
+    "name": "shosa/mymica",
+    "description": "Beauty Agenda",
     "type": "project",
     "autoload": {
         "psr-4": {
@@ -14,8 +14,6 @@
         }
     ],
     "require": {
-        "phpoffice/phpspreadsheet": "^1.29",
-        "phpmailer/phpmailer": "^6.9",
-        "tecnickcom/tcpdf": "^6.7"
+     
     }
 }

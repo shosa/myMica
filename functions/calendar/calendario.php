@@ -43,6 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $stmt = $pdo->prepare("INSERT INTO appuntamenti (id_cliente, id_servizio, data_appuntamento, tempo_servizio) VALUES (?, ?, ?, ?)");
     $stmt->execute([$id_cliente, $id_servizio, $data_completa, $tempo_servizio]);
+    $_SESSION["success"] = "Appuntamento Inserito!";
     header("Location: calendario.php?anno=$anno&mese=$mese&giorno=$giorno");
     exit;
 }
@@ -87,7 +88,7 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti)
                 $nome_cliente = htmlspecialchars($appuntamento['nome_cliente']);
                 $nome_servizio = htmlspecialchars($appuntamento['nome_servizio']);
                 $id_appuntamento = $appuntamento['id_appuntamento'];
-                echo "<li class='list-group-item font-weight-bold text-indigo appointment-item' data-id='$id_appuntamento' data-cliente='$nome_cliente' data-ora='$ora_appuntamento' data-servizio='$nome_servizio'>$ora_appuntamento - $nome_cliente ($nome_servizio)</li>";
+                echo "<li class='appuntamento list-group-item font-weight-bold text-indigo appointment-item' data-id='$id_appuntamento' data-cliente='$nome_cliente' data-ora='$ora_appuntamento' data-servizio='$nome_servizio'>$ora_appuntamento - $nome_cliente ($nome_servizio)</li>";
             }
         }
         echo '</ul>';
@@ -141,6 +142,11 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .floating-btn .btn-lg {
         font-size: 18px;
         /* Imposta la dimensione del testo */
+    }
+
+    .appuntamento:hover {
+        background-color: var(--indigo);
+        color: white !important;
     }
 </style>
 
@@ -385,8 +391,8 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     document.getElementById('detail_data_appuntamento').textContent = dataFormat;
                                     document.getElementById('detail_ora_appuntamento').textContent = oraFormat;
 
-                                    const whatsappMessage = `Ciao, ti ricordo l'appuntamento del ${dataFormat} alle ${oraFormat}`;
-                                    document.getElementById('whatsappLink').href = `https://api.whatsapp.com/send?phone=${data.telefono_cliente}&text=${encodeURIComponent(whatsappMessage)}`;
+                                    const whatsappLink = `https://api.whatsapp.com/send?phone=39${data.telefono_cliente}`;
+                                    document.getElementById('whatsappLink').href = whatsappLink;
 
                                     document.getElementById('editAppointmentBtn').dataset.idAppuntamento = data.id_appuntamento;
                                     document.getElementById('deleteAppointmentBtn').dataset.idAppuntamento = data.id_appuntamento;
