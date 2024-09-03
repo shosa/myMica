@@ -3,7 +3,7 @@
 
 function connectDB() {
     $host = 'localhost'; // O l'hostname del tuo server MySQL
-    $dbname = 'my_mymica';
+    $dbname = 'my_mybeautyagenda';
     $username = 'root'; // Sostituisci con il tuo username del database
     $password = ''; // Sostituisci con la tua password del database
 

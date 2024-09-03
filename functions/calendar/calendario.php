@@ -55,7 +55,7 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti)
 
     $formatter = new IntlDateFormatter('it_IT', IntlDateFormatter::FULL, IntlDateFormatter::NONE, 'Europe/Rome', IntlDateFormatter::GREGORIAN, 'eeee dd MMMM yyyy');
     $formatterCard = new IntlDateFormatter('it_IT', IntlDateFormatter::FULL, IntlDateFormatter::NONE, 'Europe/Rome', IntlDateFormatter::GREGORIAN, 'eeee dd');
-
+    $formatterNomeGiorno = new IntlDateFormatter('it_IT', IntlDateFormatter::FULL, IntlDateFormatter::NONE, 'Europe/Rome', IntlDateFormatter::GREGORIAN, 'eeee');
     for ($i = 0; $i < 7; $i++) {
         $giorni_settimana[] = clone $inizio_settimana;
         $inizio_settimana->modify('+1 day');
@@ -65,9 +65,19 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti)
 
     echo '<div class="row row-cols-1 row-cols-md-12">';
     foreach ($giorni_settimana as $giorno) {
+        $nomeGiorno = $formatterNomeGiorno->format($giorno);
+
+        // Determina le classi in base ai giorni della settimana
+        $class = '';
+        if ($nomeGiorno === 'sabato') {
+            $class .= 'border rounded border-info ';
+        }
+        if ($nomeGiorno === 'domenica') {
+            $class .= 'border rounded border-danger ';
+        }
         echo '<div class="col">';
         echo '<div class="card mt-1">';
-        echo '<div class="card-body">';
+        echo '<div class="card-body ' . htmlspecialchars(trim($class)) . '">';
         echo '<h5 class="card-title text-dark font-weight-bold">' . $formatterCard->format($giorno) . '</h5>';
         echo '<ul class="list-group list-group-flush">';
         foreach ($appuntamenti as $appuntamento) {
@@ -76,7 +86,8 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti)
                 $ora_appuntamento = $data_appuntamento->format('H:i');
                 $nome_cliente = htmlspecialchars($appuntamento['nome_cliente']);
                 $nome_servizio = htmlspecialchars($appuntamento['nome_servizio']);
-                echo "<li class='list-group-item font-weight-bold text-indigo'>$ora_appuntamento - $nome_cliente ($nome_servizio)</li>";
+                $id_appuntamento = $appuntamento['id_appuntamento'];
+                echo "<li class='list-group-item font-weight-bold text-indigo appointment-item' data-id='$id_appuntamento' data-cliente='$nome_cliente' data-ora='$ora_appuntamento' data-servizio='$nome_servizio'>$ora_appuntamento - $nome_cliente ($nome_servizio)</li>";
             }
         }
         echo '</ul>';
@@ -100,6 +111,38 @@ $stmt = $pdo->prepare("SELECT a.id_appuntamento, c.nome_cliente, s.nome_servizio
 $stmt->execute([$inizio_settimana, $fine_settimana]);
 $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+<style>
+    .floating-btn {
+        position: fixed;
+        bottom: 20px;
+        /* Distanza dal fondo della pagina */
+        right: 20px;
+        /* Distanza dal lato destro della pagina */
+        border-radius: 50%;
+        /* Rende il pulsante tondo */
+        width: 60px;
+        /* Larghezza del pulsante */
+        height: 60px;
+        /* Altezza del pulsante */
+        padding: 0;
+        /* Rimuove il padding per farlo perfettamente tondo */
+        text-align: center;
+        /* Allinea il testo al centro */
+        display: flex;
+        /* Usa Flexbox per centrare il testo */
+        align-items: center;
+        /* Allinea verticalmente il testo al centro */
+        justify-content: center;
+        /* Allinea orizzontalmente il testo al centro */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        /* Aggiunge un'ombra per il pulsante */
+    }
+
+    .floating-btn .btn-lg {
+        font-size: 18px;
+        /* Imposta la dimensione del testo */
+    }
+</style>
 
 <body id="page-top">
     <div id="wrapper">
@@ -110,7 +153,7 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="container-fluid">
                     <?php require_once BASE_PATH . "/utils/alerts.php"; ?>
                     <div class="align-items-center justify-content-between ">
-                        <div class="card ">
+                        <div class="card mb-4">
                             <div class="card-body d-flex justify-content-between align-items-center">
                                 <a href="calendario.php?anno=<?php echo $anno; ?>&mese=<?php echo $mese; ?>&giorno=<?php echo $giorno; ?>&action=prev"
                                     class="btn btn-indigo btn-circle">
@@ -130,15 +173,16 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php generaVistaSettimana($anno, $mese, $giorno, $appuntamenti); ?>
 
                         <!-- Modale per il nuovo appuntamento -->
-                        <button class="btn btn-lg btn-indigo mt-2 mb-2 btn-block" data-toggle="modal"
-                            data-target="#newAppointmentModal">Nuovo
-                            Appuntamento</button>
+                        <button class="btn btn-lg btn-indigo floating-btn" data-toggle="modal"
+                            data-target="#newAppointmentModal"><i class="fa fa-plus"></i></button>
+
                     </div>
                 </div>
             </div>
+            <!-- Modale per nuovo appuntamento -->
             <div class="modal fade" id="newAppointmentModal" tabindex="-1" aria-labelledby="newAppointmentModalLabel"
                 aria-hidden="true">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="newAppointmentModalLabel">Nuovo Appuntamento</h5>
@@ -158,7 +202,8 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             placeholder="Cerca cliente..." required>
                                         <div class="input-group-append">
                                             <button class="btn btn-success" type="button" id="addClienteBtn"
-                                                data-toggle="modal" data-target="#newClienteModal">+</button>
+                                                data-toggle="modal" data-target="#newClienteModal"><i
+                                                    class="fal fa-plus fa-s"></i></button>
                                         </div>
                                     </div>
                                     <input type="hidden" name="id_cliente" id="id_cliente" required>
@@ -192,15 +237,17 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <input type="time" name="ora_appuntamento" id="ora_appuntamento"
                                         class="form-control" required>
                                 </div>
-                                <button type="submit" class="btn btn-lg btn-block btn-primary">Crea Appuntamento</button>
+                                <button type="submit" class="btn btn-lg btn-block btn-primary">Crea
+                                    Appuntamento</button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- Modale per nuovo cliente -->
             <div class="modal fade blur" id="newClienteModal" tabindex="-1" aria-labelledby="newClienteModalLabel"
                 aria-hidden="true" style="background: rgba(0, 0, 0, 0.35) !important;">
-                <div class="modal-dialog ">
+                <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="newClienteModalLabel">Nuovo Cliente</h5>
@@ -227,6 +274,34 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
 
+            <!-- Modale per i dettagli dell'appuntamento -->
+            <div class="modal fade" id="appointmentDetailsModal" tabindex="-1"
+                aria-labelledby="appointmentDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="appointmentDetailsModalLabel">Dettagli Appuntamento</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Nome Cliente:</strong> <span id="detail_nome_cliente"></span></p>
+                            <p><strong>Tipo di Servizio:</strong> <span id="detail_nome_servizio"></span></p>
+                            <p><strong>Data:</strong> <span id="detail_data_appuntamento"></span></p>
+                            <p><strong>Ora:</strong> <span id="detail_ora_appuntamento"></span></p>
+                            <div class="mt-3 align-items-center text-center">
+                                <button class="btn btn-primary btn-lg shadow btn-circle " id="editAppointmentBtn"><i
+                                        class="fa fa-pencil-alt"></i></button>
+                                <button class="btn btn-danger btn-lg shadow btn-circle" id="deleteAppointmentBtn"><i
+                                        class="fa fa-trash"></i></button>
+                                <a id="whatsappLink" class="btn btn-success btn-lg shadow btn-circle" target="_blank"><i
+                                        class="fa-brands fa-whatsapp"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <script>
                 document.getElementById('search_cliente').addEventListener('input', function () {
                     const searchTerm = this.value;
@@ -245,6 +320,9 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     suggestionItem.dataset.id = cliente.id_cliente;
                                     suggestionItem.addEventListener('click', function () {
                                         document.getElementById('search_cliente').value = cliente.nome_cliente;
+                                        document.getElementById('search_cliente').classList.add("text-success");
+                                        document.getElementById('search_cliente').classList.add("border");
+                                        document.getElementById('search_cliente').classList.add("border-success");
                                         document.getElementById('id_cliente').value = cliente.id_cliente;
                                         suggestions.innerHTML = '';
                                     });
@@ -264,20 +342,21 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         method: 'POST',
                         body: formData
                     })
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Errore nel salvataggio del cliente');
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             if (data.success) {
-                                // Imposta il nuovo cliente nel campo cliente del form appuntamento
-                                document.getElementById('search_cliente').value = data.nome_cliente;
                                 document.getElementById('id_cliente').value = data.id_cliente;
-
-                                // Chiudi il modale
+                                document.getElementById('search_cliente').value = data.nome_cliente;
+                                document.getElementById('search_cliente').classList.add("text-success");
+                                document.getElementById('search_cliente').classList.add("border");
+                                document.getElementById('search_cliente').classList.add("border-success");
                                 $('#newClienteModal').modal('hide');
-
-                                // Mostra un messaggio di successo (opzionale)
-                                alert('Cliente aggiunto con successo!');
                             } else {
-                                // Mostra un messaggio di errore (opzionale)
                                 alert(data.message || 'Si è verificato un errore durante il salvataggio del cliente.');
                             }
                         })
@@ -286,8 +365,65 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             alert('Si è verificato un errore durante il salvataggio del cliente.');
                         });
                 });
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.querySelectorAll('.appointment-item').forEach(item => {
+                        item.addEventListener('click', function () {
+                            const idAppuntamento = this.dataset.id;
 
+                            fetch(`get_appointment_details.php?id_appuntamento=${idAppuntamento}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    // Popola i dettagli dell'appuntamento nel modale
+                                    document.getElementById('detail_nome_cliente').textContent = data.nome_cliente;
+                                    document.getElementById('detail_nome_servizio').textContent = data.nome_servizio;
+
+                                    // Formattazione data e ora
+                                    const dataAppuntamento = new Date(data.data_appuntamento);
+                                    const dataFormat = `${dataAppuntamento.getDate()}/${dataAppuntamento.getMonth() + 1}/${dataAppuntamento.getFullYear()}`;
+                                    const oraFormat = dataAppuntamento.toTimeString().substring(0, 5);
+
+                                    document.getElementById('detail_data_appuntamento').textContent = dataFormat;
+                                    document.getElementById('detail_ora_appuntamento').textContent = oraFormat;
+
+                                    const whatsappMessage = `Ciao, ti ricordo l'appuntamento del ${dataFormat} alle ${oraFormat}`;
+                                    document.getElementById('whatsappLink').href = `https://api.whatsapp.com/send?phone=${data.telefono_cliente}&text=${encodeURIComponent(whatsappMessage)}`;
+
+                                    document.getElementById('editAppointmentBtn').dataset.idAppuntamento = data.id_appuntamento;
+                                    document.getElementById('deleteAppointmentBtn').dataset.idAppuntamento = data.id_appuntamento;
+
+                                    $('#appointmentDetailsModal').modal('show');
+                                })
+                                .catch(error => console.error('Errore:', error));
+                        });
+                    });
+
+                    // Gestione della modifica dell'appuntamento
+                    document.getElementById('editAppointmentBtn').addEventListener('click', function () {
+                        const idAppuntamento = this.dataset.idAppuntamento;
+                        window.location.href = `modifica_appuntamento.php?id_appuntamento=${idAppuntamento}`;
+                    });
+
+                    // Gestione della cancellazione dell'appuntamento
+                    document.getElementById('deleteAppointmentBtn').addEventListener('click', function () {
+                        const idAppuntamento = this.dataset.idAppuntamento;
+
+                        if (confirm('Sei sicuro di voler cancellare questo appuntamento?')) {
+                            fetch(`delete_appointment.php?id_appuntamento=${idAppuntamento}`, { method: 'DELETE' })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+
+                                        location.reload(); // Ricarica la pagina per aggiornare la lista degli appuntamenti
+                                    } else {
+                                        alert('Errore nella cancellazione dell\'appuntamento.');
+                                    }
+                                })
+                                .catch(error => console.error('Errore:', error));
+                        }
+                    });
+                });
             </script>
+
             <?php include(BASE_PATH . "/components/footer.php"); ?>
         </div>
     </div>

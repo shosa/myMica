@@ -46,6 +46,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
         </a>
     </li>
 
+    <li class="nav-item">
+        <a id="servizi" class="nav-link collapsed" href="<?php echo BASE_URL ?>/functions/services/services"
+            aria-expanded="true" aria-controls="collapseProd">
+            <i class="far fa-spa"></i>
+            <span>Servizi</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a id="clienti" class="nav-link collapsed" href="<?php echo BASE_URL ?>/functions/customers/customers"
+            aria-expanded="true" aria-controls="collapseProd">
+            <i class="far fa-users"></i>
+            <span>Clienti</span>
+        </a>
+    </li>
+
 </ul>
 <style>
     .border-width-6 {
@@ -77,6 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
         var navLinks = {
             '/index': 'home',
             '/functions/calendar/calendario': 'calendario',
+            '/functions/services/services': 'servizi',
+            '/functions/customers/customers': 'clienti',
 
 
             // Aggiungi qui altri link come necessario
