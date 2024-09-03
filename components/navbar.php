@@ -34,9 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
     <hr class="sidebar-divider">
 
     <!-- TITOLO SEZIONE -->
-    <div class="sidebar-heading">
-        Funzioni
-    </div>
 
     <li class="nav-item">
         <a id="calendario" class="nav-link collapsed" href="<?php echo BASE_URL ?>/functions/calendar/calendario"

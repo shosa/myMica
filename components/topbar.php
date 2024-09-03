@@ -17,7 +17,7 @@
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
     <!-- Sidebar Toggle (Topbar) -->
     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle">
-        <i class="fa fa-bars text-primary"></i>
+        <i class="fa fa-bars text-indigo"></i>
     </button>
 
     <!-- Contenitore per il testo centrato -->
@@ -26,7 +26,7 @@
             style="margin-left:-6% !important; text-decoration: none !important;">MyMica</a>
     </div>
 
-    <!-- Topbar Navbar -->s
+    <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto">
         <!-- Nav Item - Notifications -->
         <div class="topbar-divider d-none d-sm-block"></div>
