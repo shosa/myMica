@@ -76,19 +76,32 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti)
         if ($nomeGiorno === 'domenica') {
             $class .= 'border rounded border-danger ';
         }
+
         echo '<div class="col">';
         echo '<div class="card mt-1">';
         echo '<div class="card-body ' . htmlspecialchars(trim($class)) . '">';
         echo '<h5 class="card-title text-dark font-weight-bold">' . $formatterCard->format($giorno) . '</h5>';
         echo '<ul class="list-group list-group-flush">';
         foreach ($appuntamenti as $appuntamento) {
+            $icona = '';
+            $coloreAppuntamento = '';
+            if ($appuntamento['completato'] == 0) { // Confronto non rigoroso
+                $icona = '<span class="icon"><i class="fal fa-clock text-primary"></i></span>';
+                $coloreAppuntamento = 'font-weight-normal text-primary';
+            }
+            if ($appuntamento['completato'] == 1) {
+                $icona = '<span class="icon"><i class="fal fa-check text-success"></i></span>';
+                $coloreAppuntamento = 'font-weight-normal text-grey';
+            }
             $data_appuntamento = new DateTime($appuntamento['data_appuntamento']);
             if ($data_appuntamento->format('Y-m-d') === $giorno->format('Y-m-d')) {
                 $ora_appuntamento = $data_appuntamento->format('H:i');
                 $nome_cliente = htmlspecialchars($appuntamento['nome_cliente']);
                 $nome_servizio = htmlspecialchars($appuntamento['nome_servizio']);
                 $id_appuntamento = $appuntamento['id_appuntamento'];
-                echo "<li class='appuntamento list-group-item font-weight-bold text-indigo appointment-item' data-id='$id_appuntamento' data-cliente='$nome_cliente' data-ora='$ora_appuntamento' data-servizio='$nome_servizio'>$ora_appuntamento - $nome_cliente ($nome_servizio)</li>";
+                echo "<li class='appuntamento list-group-item " . $coloreAppuntamento . " appointment-item' data-id='$id_appuntamento' data-cliente='$nome_cliente' data-ora='$ora_appuntamento' data-servizio='$nome_servizio'>"
+                    . $icona .
+                    " <span class='appointment-text'>$ora_appuntamento - $nome_cliente |<i> $nome_servizio </i></span></li>";
             }
         }
         echo '</ul>';
@@ -103,7 +116,7 @@ $inizio_settimana = (new DateTime("$anno-$mese-$giorno"))->modify('monday this w
 $fine_settimana = (new DateTime("$anno-$mese-$giorno"))->modify('sunday this week')->format('Y-m-d');
 $numero_settimana = (new DateTime("$anno-$mese-$giorno"))->format('W');
 
-$stmt = $pdo->prepare("SELECT a.id_appuntamento, c.nome_cliente, s.nome_servizio, a.data_appuntamento, a.tempo_servizio 
+$stmt = $pdo->prepare("SELECT a.id_appuntamento, c.nome_cliente, s.nome_servizio, a.data_appuntamento, a.tempo_servizio , a.completato
                        FROM appuntamenti a
                        JOIN clienti c ON a.id_cliente = c.id_cliente
                        JOIN servizi s ON a.id_servizio = s.id_servizio
@@ -112,43 +125,7 @@ $stmt = $pdo->prepare("SELECT a.id_appuntamento, c.nome_cliente, s.nome_servizio
 $stmt->execute([$inizio_settimana, $fine_settimana]);
 $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-<style>
-    .floating-btn {
-        position: fixed;
-        bottom: 20px;
-        /* Distanza dal fondo della pagina */
-        right: 20px;
-        /* Distanza dal lato destro della pagina */
-        border-radius: 50%;
-        /* Rende il pulsante tondo */
-        width: 60px;
-        /* Larghezza del pulsante */
-        height: 60px;
-        /* Altezza del pulsante */
-        padding: 0;
-        /* Rimuove il padding per farlo perfettamente tondo */
-        text-align: center;
-        /* Allinea il testo al centro */
-        display: flex;
-        /* Usa Flexbox per centrare il testo */
-        align-items: center;
-        /* Allinea verticalmente il testo al centro */
-        justify-content: center;
-        /* Allinea orizzontalmente il testo al centro */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        /* Aggiunge un'ombra per il pulsante */
-    }
-
-    .floating-btn .btn-lg {
-        font-size: 18px;
-        /* Imposta la dimensione del testo */
-    }
-
-    .appuntamento:hover {
-        background-color: var(--indigo);
-        color: white !important;
-    }
-</style>
+<link rel="stylesheet" href="custom.css">
 
 <body id="page-top">
     <div id="wrapper">
@@ -286,23 +263,35 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="appointmentDetailsModalLabel">Dettagli Appuntamento</h5>
+                            <h5 class="modal-title" id="appointmentDetailsModalLabel">APPUNTAMENTO <span
+                                    class="text-indigo font-weight-bold" id="detail_id_appuntamento"></span> </h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <p><strong>Nome Cliente:</strong> <span id="detail_nome_cliente"></span></p>
-                            <p><strong>Tipo di Servizio:</strong> <span id="detail_nome_servizio"></span></p>
-                            <p><strong>Data:</strong> <span id="detail_data_appuntamento"></span></p>
-                            <p><strong>Ora:</strong> <span id="detail_ora_appuntamento"></span></p>
+                            <p><strong>CLIENTE: </strong> <span id="detail_nome_cliente"></span></p>
+                            <p><strong>SERVIZIO: </strong> <span id="detail_nome_servizio"></span></p>
+                            <p><strong>DATA: </strong> <span id="detail_data_appuntamento"></span></p>
+                            <p><strong>ORA: </strong> <span class="mr-4" id="detail_ora_appuntamento"></span><span
+                                    class="h5 font-weight-bold text-white p-1 rounded"
+                                    style="margin-left:20% !important;" id="detail_stato"></span>
+                            </p>
+
+                            <hr>
                             <div class="mt-3 align-items-center text-center">
-                                <button class="btn btn-primary btn-lg shadow btn-circle " id="editAppointmentBtn"><i
-                                        class="fa fa-pencil-alt"></i></button>
-                                <button class="btn btn-danger btn-lg shadow btn-circle" id="deleteAppointmentBtn"><i
-                                        class="fa fa-trash"></i></button>
-                                <a id="whatsappLink" class="btn btn-success btn-lg shadow btn-circle" target="_blank"><i
-                                        class="fa-brands fa-whatsapp"></i></a>
+                                <a id="whatsappLink"
+                                    class="btn btn-light border border-success text-success btn-lg shadow btn-circle mr-2"
+                                    target="_blank"><i class="fa-brands fa-whatsapp "></i></a>
+                                <button class="btn btn-primary btn-lg shadow btn-circle mr-2 "
+                                    id="editAppointmentBtn"><i class="fa fa-pencil-alt"></i></button>
+                                <button class="btn btn-danger btn-lg shadow btn-circle mr-4"
+                                    id="deleteAppointmentBtn"><i class="fa fa-trash"></i></button>
+
+
+                                <button class="btn btn-success btn-lg shadow btn-circle ml-4"
+                                    id="completeAppointmentBtn"><i class="fa fa-check"></i></button>
+                                <!-- Pulsante Completa -->
                             </div>
                         </div>
                     </div>
@@ -379,29 +368,49 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             fetch(`get_appointment_details.php?id_appuntamento=${idAppuntamento}`)
                                 .then(response => response.json())
                                 .then(data => {
-                                    // Popola i dettagli dell'appuntamento nel modale
-                                    document.getElementById('detail_nome_cliente').textContent = data.nome_cliente;
-                                    document.getElementById('detail_nome_servizio').textContent = data.nome_servizio;
-
-                                    // Formattazione data e ora
-                                    const dataAppuntamento = new Date(data.data_appuntamento);
-                                    const dataFormat = `${dataAppuntamento.getDate()}/${dataAppuntamento.getMonth() + 1}/${dataAppuntamento.getFullYear()}`;
-                                    const oraFormat = dataAppuntamento.toTimeString().substring(0, 5);
-
-                                    document.getElementById('detail_data_appuntamento').textContent = dataFormat;
-                                    document.getElementById('detail_ora_appuntamento').textContent = oraFormat;
-
-                                    const whatsappLink = `https://api.whatsapp.com/send?phone=39${data.telefono_cliente}`;
-                                    document.getElementById('whatsappLink').href = whatsappLink;
-
-                                    document.getElementById('editAppointmentBtn').dataset.idAppuntamento = data.id_appuntamento;
-                                    document.getElementById('deleteAppointmentBtn').dataset.idAppuntamento = data.id_appuntamento;
-
+                                    aggiornaDettagliAppuntamento(data);
                                     $('#appointmentDetailsModal').modal('show');
                                 })
                                 .catch(error => console.error('Errore:', error));
                         });
                     });
+
+                    // Funzione per aggiornare i dettagli dell'appuntamento nel modal
+                    function aggiornaDettagliAppuntamento(data) {
+                        document.getElementById('detail_nome_cliente').textContent = data.nome_cliente;
+                        document.getElementById('detail_nome_servizio').textContent = data.nome_servizio;
+                        document.getElementById('detail_id_appuntamento').textContent = "#" + data.id_appuntamento;
+                        document.getElementById('detail_stato').textContent = data.completato == 1 ? "COMPLETATO" : "IN PROGRAMMA";
+                        document.getElementById('detail_stato').classList.remove(data.completato == 1 ? "bg-dark" : "bg-success");
+                        document.getElementById('detail_stato').classList.add(data.completato == 1 ? "bg-success" : "bg-dark");
+
+
+                        const dataAppuntamento = new Date(data.data_appuntamento);
+                        const dataFormat = `${dataAppuntamento.getDate()}/${dataAppuntamento.getMonth() + 1}/${dataAppuntamento.getFullYear()}`;
+                        const oraFormat = dataAppuntamento.toTimeString().substring(0, 5);
+
+                        document.getElementById('detail_data_appuntamento').textContent = dataFormat;
+                        document.getElementById('detail_ora_appuntamento').textContent = oraFormat;
+
+                        const messaggio = `Ciao ti ricordo l'appuntamento del ${dataFormat} alle ${oraFormat}`;
+                        const whatsappLink = `https://api.whatsapp.com/send?phone=39${data.telefono_cliente}&text=${encodeURIComponent(messaggio)}`;
+
+                        document.getElementById('whatsappLink').href = whatsappLink;
+
+                        document.getElementById('editAppointmentBtn').dataset.idAppuntamento = data.id_appuntamento;
+                        document.getElementById('deleteAppointmentBtn').dataset.idAppuntamento = data.id_appuntamento;
+                        document.getElementById('completeAppointmentBtn').dataset.idAppuntamento = data.id_appuntamento;
+
+                        if (data.completato == 1) {
+                            document.getElementById('editAppointmentBtn').disabled = true;
+                            document.getElementById('deleteAppointmentBtn').disabled = true;
+                            document.getElementById('completeAppointmentBtn').disabled = true;
+                        } else {
+                            document.getElementById('editAppointmentBtn').disabled = false;
+                            document.getElementById('deleteAppointmentBtn').disabled = false;
+                            document.getElementById('completeAppointmentBtn').disabled = false;
+                        }
+                    }
 
                     // Gestione della modifica dell'appuntamento
                     document.getElementById('editAppointmentBtn').addEventListener('click', function () {
@@ -418,8 +427,7 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
-
-                                        location.reload(); // Ricarica la pagina per aggiornare la lista degli appuntamenti
+                                        location.reload();
                                     } else {
                                         alert('Errore nella cancellazione dell\'appuntamento.');
                                     }
@@ -427,7 +435,68 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 .catch(error => console.error('Errore:', error));
                         }
                     });
+
+                    // Gestione del completamento dell'appuntamento
+                    document.getElementById('completeAppointmentBtn').addEventListener('click', function () {
+                        const idAppuntamento = this.dataset.idAppuntamento;
+
+                        Swal.fire({
+                            title: 'Sei sicuro?',
+                            text: "Vuoi completare questo appuntamento?",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sì, completa',
+                            cancelButtonText: 'Annulla'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                fetch('complete_appointment.php', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                    },
+                                    body: new URLSearchParams({
+                                        'id_appuntamento': idAppuntamento
+                                    })
+                                })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            Swal.fire({
+                                                title: 'Appuntamento completato!',
+                                                text: data.message,
+                                                icon: 'success'
+                                            }).then(() => {
+                                                // Aggiorna i dettagli dell'appuntamento nel modal
+                                                fetch(`get_appointment_details.php?id_appuntamento=${idAppuntamento}`)
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        aggiornaDettagliAppuntamento(data);
+                                                    })
+                                                    .catch(error => console.error('Errore:', error));
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                title: 'Errore',
+                                                text: data.message,
+                                                icon: 'error'
+                                            });
+                                        }
+                                    })
+                                    .catch(error => {
+                                        Swal.fire({
+                                            title: 'Errore',
+                                            text: 'Si è verificato un errore durante il completamento dell\'appuntamento.',
+                                            icon: 'error'
+                                        });
+                                        console.error('Errore:', error);
+                                    });
+                            }
+                        });
+                    });
                 });
+
+
+
             </script>
 
             <?php include(BASE_PATH . "/components/footer.php"); ?>
