@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 
-$servizi = $pdo->query("SELECT * FROM servizi")->fetchAll(PDO::FETCH_ASSOC);
+$servizi = $pdo->query("SELECT * FROM servizi ORDER BY nome_servizio ASC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <body>
