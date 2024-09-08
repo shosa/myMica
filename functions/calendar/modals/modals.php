@@ -126,3 +126,38 @@
         </div>
     </div>
 </div>
+
+<!-- Modale nuova annotazione -->
+<div class="modal fade" id="newAnnotationModal" tabindex="-1" role="dialog" aria-labelledby="newAnnotationModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newAnnotationModalLabel">Nuova Annotazione</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="newAnnotationForm" method="POST" action="saveAnnotation.php">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="dataAnnotazione">Data</label>
+                        <input type="date" class="form-control" id="dataAnnotazione" name="dataAnnotazione" required>
+                        <div class="mb-3">
+                        <label for="oraAnnotazione" class="form-label">Ora</label>
+                        <input type="time" name="oraAnnotazione" id="oraAnnotazione" class="form-control" required>
+                    </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="nota">Nota</label>
+                        <textarea class="form-control" id="nota" name="nota" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva Annotazione</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

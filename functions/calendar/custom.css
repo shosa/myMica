@@ -29,6 +29,37 @@
     /* Imposta la dimensione del testo */
 }
 
+.floating-btn2 {
+    position: fixed;
+    bottom: 100px;
+    /* Distanza dal fondo della pagina */
+    right: 20px;
+    /* Distanza dal lato destro della pagina */
+    border-radius: 50%;
+    /* Rende il pulsante tondo */
+    width: 60px;
+    /* Larghezza del pulsante */
+    height: 60px;
+    /* Altezza del pulsante */
+    padding: 0;
+    /* Rimuove il padding per farlo perfettamente tondo */
+    text-align: center;
+    /* Allinea il testo al centro */
+    display: flex;
+    /* Usa Flexbox per centrare il testo */
+    align-items: center;
+    /* Allinea verticalmente il testo al centro */
+    justify-content: center;
+    /* Allinea orizzontalmente il testo al centro */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    /* Aggiunge un'ombra per il pulsante */
+}
+
+.floating-btn2 .btn-lg {
+    font-size: 18px;
+    /* Imposta la dimensione del testo */
+}
+
 .appuntamento:hover {
     background-color: var(--indigo);
     color: white !important;
