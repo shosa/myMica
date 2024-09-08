@@ -1,16 +1,12 @@
-<?php
-include("../../config/config.php");
+<?php include ("../../config/config.php");
 session_start();
 $pdo = getDbInstance();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-include(BASE_PATH . "/components/header.php");
-
+include (BASE_PATH . "/components/header.php");
 setlocale(LC_TIME, 'it_IT.UTF-8');
-
 $anno = isset($_GET['anno']) ? (int) $_GET['anno'] : date('Y');
 $mese = isset($_GET['mese']) ? (int) $_GET['mese'] : date('n');
 $giorno = isset($_GET['giorno']) ? (int) $_GET['giorno'] : date('j');
-
 $data_corrente = new DateTime("$anno-$mese-$giorno");
 if (isset($_GET['action'])) {
     if ($_GET['action'] === 'next') {
@@ -22,60 +18,52 @@ if (isset($_GET['action'])) {
 $anno = $data_corrente->format('Y');
 $mese = $data_corrente->format('n');
 $giorno = $data_corrente->format('j');
-
 $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente ASC")->fetchAll(PDO::FETCH_ASSOC);
 $servizi = $pdo->query("SELECT * FROM servizi ORDER BY nome_servizio ASC")->fetchAll(PDO::FETCH_ASSOC);
-
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_cliente = $_POST['id_cliente'];
-    $servizi_selezionati = $_POST['id_servizio']; // array di servizi
-    $tempo_servizio = $_POST['tempo_servizio'] ?: null;
+    $servizi_selezionati = $_POST['id_servizio'];
     $data_appuntamento = $_POST['data_appuntamento'];
     $ora_appuntamento = $_POST['ora_appuntamento'];
-
     $data_completa = "$data_appuntamento $ora_appuntamento";
 
-    // Cicla attraverso i servizi selezionati
     foreach ($servizi_selezionati as $id_servizio) {
-        // Se il tempo servizio non è fornito, recuperalo dal database
-        if (!$tempo_servizio) {
-            $stmt = $pdo->prepare("SELECT tempo_medio FROM servizi WHERE id_servizio = ?");
-            $stmt->execute([$id_servizio]);
-            $tempo_servizio = $stmt->fetchColumn();
-        }
+        // Recupera il tempo_servizio specifico per ogni servizio
+        $stmt = $pdo->prepare("SELECT tempo_medio FROM servizi WHERE id_servizio = ?");
+        $stmt->execute([$id_servizio]);
+        $tempo_servizio = $stmt->fetchColumn();
 
-        // Inserisci l'appuntamento con ogni servizio
+        // Inserisci l'appuntamento con il tempo_servizio specifico per il servizio corrente
         $stmt = $pdo->prepare("INSERT INTO appuntamenti (id_cliente, id_servizio, data_appuntamento, tempo_servizio) VALUES (?, ?, ?, ?)");
         $stmt->execute([$id_cliente, $id_servizio, $data_completa, $tempo_servizio]);
     }
 
-    // Imposta il messaggio di successo
     $_SESSION["success"] = "Appuntamento con più servizi inserito!";
     header("Location: calendario.php?anno=$anno&mese=$mese&giorno=$giorno");
     exit;
 }
-
 function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti)
 {
     $inizio_settimana = new DateTime("$anno-$mese-$giorno");
     $inizio_settimana->modify('monday this week');
     $giorni_settimana = [];
-
     $formatter = new IntlDateFormatter('it_IT', IntlDateFormatter::FULL, IntlDateFormatter::NONE, 'Europe/Rome', IntlDateFormatter::GREGORIAN, 'eeee dd MMMM yyyy');
     $formatterCard = new IntlDateFormatter('it_IT', IntlDateFormatter::FULL, IntlDateFormatter::NONE, 'Europe/Rome', IntlDateFormatter::GREGORIAN, 'eeee dd');
     $formatterNomeGiorno = new IntlDateFormatter('it_IT', IntlDateFormatter::FULL, IntlDateFormatter::NONE, 'Europe/Rome', IntlDateFormatter::GREGORIAN, 'eeee');
+
+    // Data di oggi
+    $oggi = new DateTime();
+
     for ($i = 0; $i < 7; $i++) {
         $giorni_settimana[] = clone $inizio_settimana;
         $inizio_settimana->modify('+1 day');
     }
 
     echo "<h5 class='text-center mt-2 mb-2'>Dal " . $formatter->format($giorni_settimana[0]) . "</h5><h5 class='text-center mb-2 '> Al " . $formatter->format($giorni_settimana[6]) . "</h5>";
-
     echo '<div class="row row-cols-1 row-cols-md-12">';
+
     foreach ($giorni_settimana as $giorno) {
         $nomeGiorno = $formatterNomeGiorno->format($giorno);
-
-        // Determina le classi in base ai giorni della settimana
         $class = '';
         $color = '';
         if ($nomeGiorno === 'sabato') {
@@ -87,37 +75,56 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti)
             $color .= 'text-light bg-danger';
         }
 
+        // Controlla se il giorno corrente è oggi
+        $badgeOggi = $oggi->format('Y-m-d') === $giorno->format('Y-m-d') ? "<span class=' badge badge-success float-right '>OGGI</span>" : '';
+
         echo '<div class="col">';
         echo '<div class="card mt-2 ' . htmlspecialchars(trim($class)) . '">';
         echo '<div class="card-header ' . htmlspecialchars(trim($color)) . '">';
-        echo '<span class="card-title font-weight-bold">' . strtoupper($formatterCard->format($giorno)) . '</span>';
+        echo '<span class="card-title font-weight-bold">' . strtoupper($formatterCard->format($giorno)) . ' ' . $badgeOggi . '</span>';
         echo '</div>';
         echo '<div class="card-body ">';
-
-
         echo '<ul class="list-group list-group-flush">';
-        foreach ($appuntamenti as $appuntamento) {
-            $icona = '';
-            $coloreAppuntamento = '';
-            if ($appuntamento['completato'] == 0) { // Confronto non rigoroso
-                $icona = '<span class="icon"><i class="fal fa-clock text-primary"></i></span>';
-                $coloreAppuntamento = 'font-weight-normal text-primary';
+
+        // Raggruppa gli appuntamenti per ora, cliente e data
+        $appuntamentiGiorno = array_filter($appuntamenti, function ($a) use ($giorno) {
+            return (new DateTime($a['data_appuntamento']))->format('Y-m-d') === $giorno->format('Y-m-d');
+        });
+
+        $appuntamentiRaggruppati = [];
+        foreach ($appuntamentiGiorno as $appuntamento) {
+            $ora = (new DateTime($appuntamento['data_appuntamento']))->format('H:i');
+            $cliente = $appuntamento['nome_cliente'];
+            $chiave = "$ora-$cliente";
+
+            if (!isset($appuntamentiRaggruppati[$chiave])) {
+                $appuntamentiRaggruppati[$chiave] = [];
             }
-            if ($appuntamento['completato'] == 1) {
-                $icona = '<span class="icon"><i class="fal fa-check text-success"></i></span>';
-                $coloreAppuntamento = 'font-weight-normal text-grey';
-            }
-            $data_appuntamento = new DateTime($appuntamento['data_appuntamento']);
-            if ($data_appuntamento->format('Y-m-d') === $giorno->format('Y-m-d')) {
-                $ora_appuntamento = $data_appuntamento->format('H:i');
-                $nome_cliente = htmlspecialchars($appuntamento['nome_cliente']);
-                $nome_servizio = htmlspecialchars($appuntamento['nome_servizio']);
-                $id_appuntamento = $appuntamento['id_appuntamento'];
-                echo "<li class='appuntamento list-group-item " . $coloreAppuntamento . " appointment-item' data-id='$id_appuntamento' data-cliente='$nome_cliente' data-ora='$ora_appuntamento' data-servizio='$nome_servizio'>"
-                    . $icona .
-                    " <span class='appointment-text'>$ora_appuntamento - $nome_cliente |<i> $nome_servizio </i></span></li>";
-            }
+            $appuntamentiRaggruppati[$chiave][] = $appuntamento;
         }
+
+        foreach ($appuntamentiRaggruppati as $chiave => $listaAppuntamenti) {
+            [$ora, $cliente] = explode('-', $chiave);
+
+            // Calcola la somma dei tempi di servizio per il cliente e l'orario
+            $tempoTotale = array_reduce($listaAppuntamenti, function ($carry, $item) {
+                return $carry + $item['tempo_servizio'];
+            }, 0);
+
+            echo "<li class='list-group-item d-flex justify-content-between align-items-center font-weight-bold text-dark'>$ora - $cliente <span class='badge badge-warning'>$tempoTotale min</span></li>";
+            echo "<ul class='list-group'>";
+            foreach ($listaAppuntamenti as $appuntamento) {
+                $icona = $appuntamento['completato'] == 0 ? '<span class="icon"><i class="fal fa-clock text-primary"></i></span>' : '<span class="icon"><i class="fal fa-check text-success"></i></span>';
+                $coloreAppuntamento = $appuntamento['completato'] == 0 ? 'font-weight-normal text-primary' : 'font-weight-normal text-grey';
+                $ora_appuntamento = (new DateTime($appuntamento['data_appuntamento']))->format('H:i');
+                $nome_servizio = htmlspecialchars($appuntamento['nome_servizio']);
+                $tempo_servizio = htmlspecialchars($appuntamento['tempo_servizio']);
+                $id_appuntamento = $appuntamento['id_appuntamento'];
+                echo "<li class='appuntamento list-group-item border-0 " . $coloreAppuntamento . " appointment-item' data-id='$id_appuntamento' data-cliente='$cliente' data-ora='$ora_appuntamento' data-servizio='$nome_servizio'>" . $icona . " <span class='appointment-text'>$nome_servizio <i>($tempo_servizio min)</i></span></li>";
+            }
+            echo "</ul>";
+        }
+
         echo '</ul>';
         echo '</div>';
         echo '</div>';
@@ -129,56 +136,33 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti)
 $inizio_settimana = (new DateTime("$anno-$mese-$giorno"))->modify('monday this week')->format('Y-m-d');
 $fine_settimana = (new DateTime("$anno-$mese-$giorno"))->modify('sunday this week')->format('Y-m-d');
 $numero_settimana = (new DateTime("$anno-$mese-$giorno"))->format('W');
-
-$stmt = $pdo->prepare("SELECT a.id_appuntamento, c.nome_cliente, s.nome_servizio, a.data_appuntamento, a.tempo_servizio , a.completato
-                       FROM appuntamenti a
-                       JOIN clienti c ON a.id_cliente = c.id_cliente
-                       JOIN servizi s ON a.id_servizio = s.id_servizio
-                       WHERE DATE(a.data_appuntamento) BETWEEN ? AND ?
-                       ORDER BY a.data_appuntamento ASC");
+$stmt = $pdo->prepare("SELECT a.id_appuntamento, c.nome_cliente, s.nome_servizio, a.data_appuntamento, a.tempo_servizio , a.completato\n                       FROM appuntamenti a\n                       JOIN clienti c ON a.id_cliente = c.id_cliente\n                       JOIN servizi s ON a.id_servizio = s.id_servizio\n                       WHERE DATE(a.data_appuntamento) BETWEEN ? AND ?\n                       ORDER BY a.data_appuntamento ASC");
 $stmt->execute([$inizio_settimana, $fine_settimana]);
-$appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
-<link rel="stylesheet" href="custom.css">
+$appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
+<link href="custom.css" rel="stylesheet">
 
 <body id="page-top">
-    <div id="wrapper">
-        <?php include(BASE_PATH . "/components/navbar.php"); ?>
-        <div id="content-wrapper" class="d-flex flex-column mb-2">
-            <div id="content">
-                <?php include(BASE_PATH . "/components/topbar.php"); ?>
-                <div class="container-fluid">
-                    <?php require_once BASE_PATH . "/utils/alerts.php"; ?>
-                    <div class="align-items-center justify-content-between ">
+    <div id="wrapper"><?php include (BASE_PATH . "/components/navbar.php"); ?>
+        <div class="d-flex flex-column mb-2" id="content-wrapper">
+            <div id="content"><?php include (BASE_PATH . "/components/topbar.php"); ?>
+                <div class="container-fluid"><?php require_once BASE_PATH . "/utils/alerts.php"; ?>
+                    <div class="align-items-center justify-content-between">
                         <div class="card mb-4">
-                            <div class="card-body d-flex justify-content-between align-items-center">
-                                <a href="calendario.php?anno=<?php echo $anno; ?>&mese=<?php echo $mese; ?>&giorno=<?php echo $giorno; ?>&action=prev"
-                                    class="btn btn-indigo btn-circle">
-                                    <i class="far fa-chevron-left"></i>
-                                </a>
-                                <span class="text-center">
+                            <div class="align-items-center justify-content-between card-body d-flex"><a
+                                    class="btn btn-indigo btn-circle"
+                                    href="calendario.php?anno=<?php echo $anno; ?>&mese=<?php echo $mese; ?>&giorno=<?php echo $giorno; ?>&action=prev"><i
+                                        class="far fa-chevron-left"></i> </a><span class="text-center">
                                     <h4><b>Settimana <?php echo $numero_settimana; ?></b></h4>
-
-                                </span>
-                                <a href="calendario.php?anno=<?php echo $anno; ?>&mese=<?php echo $mese; ?>&giorno=<?php echo $giorno; ?>&action=next"
-                                    class="btn btn-indigo btn-circle">
-                                    <i class="far fa-chevron-right"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                        <?php generaVistaSettimana($anno, $mese, $giorno, $appuntamenti); ?>
-
-                        <!-- Pulsante nuovo appuntamento -->
-                        <button class="btn btn-lg btn-indigo floating-btn" data-toggle="modal"
-                            data-target="#newAppointmentModal"><i class="fa fa-plus"></i></button>
-
+                                </span><a class="btn btn-indigo btn-circle"
+                                    href="calendario.php?anno=<?php echo $anno; ?>&mese=<?php echo $mese; ?>&giorno=<?php echo $giorno; ?>&action=next"><i
+                                        class="far fa-chevron-right"></i></a></div>
+                        </div><?php generaVistaSettimana($anno, $mese, $giorno, $appuntamenti); ?><button
+                            class="btn btn-indigo btn-lg floating-btn" data-target="#newAppointmentModal"
+                            data-toggle="modal"><i class="fa fa-plus"></i></button>
                     </div>
                 </div>
-            </div>
-            <?php include("modals/modals.php") ?>
-            <script>
-                document.getElementById('search_cliente').addEventListener('input', function () {
+            </div><?php include ("modals/modals.php") ?>
+            <script>document.getElementById('search_cliente').addEventListener('input', function () {
                     const searchTerm = this.value;
 
                     if (searchTerm.length > 2) {
@@ -378,18 +362,7 @@ $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             }
                         });
                     });
-                });
-
-
-
-            </script>
-
-            <?php include(BASE_PATH . "/components/footer.php"); ?>
+                });</script><?php include (BASE_PATH . "/components/footer.php"); ?>
         </div>
-    </div>
-
-    <?php include(BASE_PATH . "/components/scripts.php"); ?>
-
+    </div><?php include (BASE_PATH . "/components/scripts.php"); ?>
 </body>
-
-</html>

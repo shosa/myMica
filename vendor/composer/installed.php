@@ -3,7 +3,7 @@
         'name' => 'shosa/mymica',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'ca5a2bb3c33b6346b9e2669756b5d81b230b1e2a',
+        'reference' => 'dee94481d422c37ba27c108f3c46afe9a1e5267b',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'shosa/mymica' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'ca5a2bb3c33b6346b9e2669756b5d81b230b1e2a',
+            'reference' => 'dee94481d422c37ba27c108f3c46afe9a1e5267b',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -38,6 +38,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 // Recupera e ordina i clienti
 $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(PDO::FETCH_ASSOC);
+
+// Recupera gli appuntamenti non completati per ogni cliente
+$appuntamentiPerCliente = [];
+$sqlAppuntamenti = "
+    SELECT 
+        a.id_cliente,
+        a.data_appuntamento, 
+        s.nome_servizio 
+    FROM appuntamenti a
+    JOIN servizi s ON a.id_servizio = s.id_servizio
+    WHERE a.completato = 0
+    ORDER BY a.data_appuntamento ASC
+";
+$stmtAppuntamenti = $pdo->prepare($sqlAppuntamenti);
+$stmtAppuntamenti->execute();
+$risultatiAppuntamenti = $stmtAppuntamenti->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($risultatiAppuntamenti as $appuntamento) {
+    $id_cliente = $appuntamento['id_cliente'];
+    $ora = date('d-m-y H:i', strtotime($appuntamento['data_appuntamento']));
+    $servizio = $appuntamento['nome_servizio'];
+
+    if (!isset($appuntamentiPerCliente[$id_cliente])) {
+        $appuntamentiPerCliente[$id_cliente] = [];
+    }
+    $appuntamentiPerCliente[$id_cliente][] = "<span class='text-indigo font-weight-bold'>$servizio</span> - $ora";
+}
 ?>
 
 <body>
@@ -57,43 +84,40 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
                     <!-- Tabella Clienti -->
                     <div class="card mb-4">
                         <div class="card-header">
-                            <button class="btn btn-success btn-block" data-toggle="modal"
-                                data-target="#addClienteModal">Aggiungi Cliente</button>
+                            <button class="btn btn-success btn-block" data-toggle="modal" data-target="#addClienteModal">Aggiungi Cliente</button>
                         </div>
                         <div class="card-body">
                             <table class="table table-hover table-striped table-bordered" id="clientTable">
                                 <thead>
                                     <tr>
-
                                         <th>Nome</th>
-
                                         <th class="text-center">Azioni</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($clienti as $cliente): ?>
-                                        <tr data-name="<?php echo htmlspecialchars($cliente['nome_cliente']); ?>">
-
-                                            <td><?php echo htmlspecialchars($cliente['nome_cliente']); ?></td>
-
+                                        <tr data-id="<?php echo $cliente['id_cliente']; ?>">
+                                            <td>
+                                                <?php
+                                                // Verifica se il cliente ha appuntamenti non completati
+                                                $hasAppuntamenti = isset($appuntamentiPerCliente[$cliente['id_cliente']]);
+                                                if ($hasAppuntamenti):
+                                                ?>
+                                                    <a href="#" class="cliente-link" data-id="<?php echo $cliente['id_cliente']; ?>">
+                                                        <?php echo htmlspecialchars($cliente['nome_cliente']); ?>
+                                                    </a>
+                                                <?php else: ?>
+                                                    <?php echo htmlspecialchars($cliente['nome_cliente']); ?>
+                                                <?php endif; ?>
+                                            </td>
                                             <td class="text-center">
                                                 <div class="dropdown">
-                                                    <button class="btn btn-circle btn-secondary btn-sm dropdown"
-                                                        type="button" id="dropdownMenuButton" data-toggle="dropdown"
-                                                        aria-haspopup="true" aria-expanded="false">
+                                                    <button class="btn btn-circle btn-secondary btn-sm dropdown" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                         <i class="fal fa-ellipsis-vertical"></i>
                                                     </button>
                                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                        <a class="dropdown-item edit-btn" href="#" data-toggle="modal"
-                                                            data-target="#editClienteModal"
-                                                            data-id="<?php echo $cliente['id_cliente']; ?>"
-                                                            data-nome="<?php echo htmlspecialchars($cliente['nome_cliente']); ?>"
-                                                            data-telefono="<?php echo htmlspecialchars($cliente['numero_telefono']); ?>"><i
-                                                                class="fal fa-pencil"></i> Modifica</a>
-                                                        <a class="dropdown-item delete-btn" href="#" data-toggle="modal"
-                                                            data-target="#deleteClienteModal"
-                                                            data-id="<?php echo $cliente['id_cliente']; ?>"><i
-                                                                class="fal fa-trash"></i> Elimina</a>
+                                                        <a class="dropdown-item edit-btn" href="#" data-toggle="modal" data-target="#editClienteModal" data-id="<?php echo $cliente['id_cliente']; ?>" data-nome="<?php echo htmlspecialchars($cliente['nome_cliente']); ?>" data-telefono="<?php echo htmlspecialchars($cliente['numero_telefono']); ?>"><i class="fal fa-pencil"></i> Modifica</a>
+                                                        <a class="dropdown-item delete-btn" href="#" data-toggle="modal" data-target="#deleteClienteModal" data-id="<?php echo $cliente['id_cliente']; ?>"><i class="fal fa-trash"></i> Elimina</a>
                                                     </div>
                                                 </div>
                                             </td>
@@ -107,9 +131,25 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
             </div>
         </div>
 
+        <!-- Modale Appuntamenti Cliente -->
+        <div class="modal fade" id="appuntamentiClienteModal" tabindex="-1" aria-labelledby="appuntamentiClienteModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="appuntamentiClienteModalLabel">Appuntamenti del Cliente</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="appuntamentiClienteList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Modale Aggiungi Cliente -->
-        <div class="modal fade" id="addClienteModal" tabindex="-1" aria-labelledby="addClienteModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="addClienteModal" tabindex="-1" aria-labelledby="addClienteModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -126,8 +166,7 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
                             </div>
                             <div class="mb-3">
                                 <label for="numero_telefono" class="form-label">Numero di Telefono</label>
-                                <input type="tel" name="numero_telefono" id="numero_telefono" class="form-control"
-                                    required>
+                                <input type="tel" name="numero_telefono" id="numero_telefono" class="form-control" required>
                             </div>
                             <button type="submit" name="add_cliente" class="btn btn-success btn-block">Aggiungi Cliente</button>
                         </form>
@@ -137,8 +176,7 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
         </div>
 
         <!-- Modale Modifica Cliente -->
-        <div class="modal fade" id="editClienteModal" tabindex="-1" aria-labelledby="editClienteModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="editClienteModal" tabindex="-1" aria-labelledby="editClienteModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -152,16 +190,13 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
                             <input type="hidden" name="id_cliente" id="edit_id_cliente">
                             <div class="mb-3">
                                 <label for="edit_nome_cliente" class="form-label">Nome Cliente</label>
-                                <input type="text" name="nome_cliente" id="edit_nome_cliente" class="form-control"
-                                    required>
+                                <input type="text" name="nome_cliente" id="edit_nome_cliente" class="form-control" required>
                             </div>
                             <div class="mb-3">
                                 <label for="edit_numero_telefono" class="form-label">Numero di Telefono</label>
-                                <input type="tel" name="numero_telefono" id="edit_numero_telefono" class="form-control"
-                                    required>
+                                <input type="tel" name="numero_telefono" id="edit_numero_telefono" class="form-control" required>
                             </div>
-                            <button type="submit" name="update_cliente" class="btn btn-warning btn-block">Aggiorna
-                                Cliente</button>
+                            <button type="submit" name="update_cliente" class="btn btn-warning btn-block">Aggiorna Cliente</button>
                         </form>
                     </div>
                 </div>
@@ -169,8 +204,7 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
         </div>
 
         <!-- Modale Elimina Cliente -->
-        <div class="modal fade" id="deleteClienteModal" tabindex="-1" aria-labelledby="deleteClienteModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="deleteClienteModal" tabindex="-1" aria-labelledby="deleteClienteModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -217,11 +251,30 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
             modal.find('#delete_id_cliente').val(id);
         });
 
+        // Apre il modale degli appuntamenti per il cliente
+        $('.cliente-link').on('click', function (event) {
+            event.preventDefault();
+            var clienteId = $(this).data('id');
+            var appuntamenti = <?php echo json_encode($appuntamentiPerCliente); ?>;
+
+            if (appuntamenti[clienteId]) {
+                var appuntamentiHtml = appuntamenti[clienteId].map(function (appuntamento) {
+                    return '<li>' + appuntamento + '</li>';
+                }).join('');
+
+                $('#appuntamentiClienteList').html('<ul>' + appuntamentiHtml + '</ul>');
+            } else {
+                $('#appuntamentiClienteList').html('<p>Nessun appuntamento trovato.</p>');
+            }
+
+            $('#appuntamentiClienteModal').modal('show');
+        });
+
         // Ricerca clienti
         $('#searchClient').on('keyup', function () {
             var searchValue = $(this).val().toLowerCase();
             $('#clientTable tbody tr').each(function () {
-                var name = $(this).data('name').toLowerCase();
+                var name = $(this).find('td').first().text().toLowerCase();
                 if (name.indexOf(searchValue) > -1) {
                     $(this).show();
                 } else {
@@ -231,5 +284,4 @@ $clienti = $pdo->query("SELECT * FROM clienti ORDER BY nome_cliente")->fetchAll(
         });
     </script>
 </body>
-
 </html>

@@ -1,9 +1,9 @@
 <?php
-include("../../config/config.php");
+include ("../../config/config.php");
 session_start();
 $pdo = getDbInstance();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-include(BASE_PATH . "/components/header.php");
+include (BASE_PATH . "/components/header.php");
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['add_servizio'])) {
@@ -39,14 +39,46 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 $servizi = $pdo->query("SELECT * FROM servizi ORDER BY nome_servizio ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+// Recupera i clienti associati a ciascun servizio
+$clientiPerServizio = [];
+$sqlClienti = "
+    SELECT 
+        s.id_servizio,
+        c.id_cliente,
+        c.nome_cliente,
+        a.data_appuntamento
+    FROM appuntamenti a
+    JOIN servizi s ON a.id_servizio = s.id_servizio
+    JOIN clienti c ON a.id_cliente = c.id_cliente
+    WHERE a.completato = 0
+    ORDER BY s.id_servizio ASC, a.data_appuntamento ASC, c.nome_cliente ASC
+";
+$stmtClienti = $pdo->prepare($sqlClienti);
+$stmtClienti->execute();
+$risultatiClienti = $stmtClienti->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($risultatiClienti as $cliente) {
+    $id_servizio = $cliente['id_servizio'];
+    $nome_cliente = $cliente['nome_cliente'];
+    $data_appuntamento = $ora = date('d-m-y H:i', strtotime($cliente['data_appuntamento']));
+
+    if (!isset($clientiPerServizio[$id_servizio])) {
+        $clientiPerServizio[$id_servizio] = [];
+    }
+    $clientiPerServizio[$id_servizio][] = [
+        'nome_cliente' => $nome_cliente,
+        'data_appuntamento' => $data_appuntamento
+    ];
+}
 ?>
 
 <body>
     <div id="wrapper">
-        <?php include(BASE_PATH . "/components/navbar.php"); ?>
+        <?php include (BASE_PATH . "/components/navbar.php"); ?>
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
-                <?php include(BASE_PATH . "/components/topbar.php"); ?>
+                <?php include (BASE_PATH . "/components/topbar.php"); ?>
                 <div class="container-fluid">
                     <h1 class="h3 mb-4 text-gray-800">Gestione Servizi</h1>
                     <!-- Tabella Servizi -->
@@ -66,7 +98,20 @@ $servizi = $pdo->query("SELECT * FROM servizi ORDER BY nome_servizio ASC")->fetc
                                 <tbody>
                                     <?php foreach ($servizi as $servizio): ?>
                                         <tr>
-                                            <td><?php echo htmlspecialchars($servizio['nome_servizio']); ?></td>
+                                            <td>
+                                                <?php
+                                                // Verifica se il servizio ha clienti associati
+                                                $hasClienti = isset($clientiPerServizio[$servizio['id_servizio']]);
+                                                if ($hasClienti):
+                                                    ?>
+                                                    <a href="#" class="servizio-link"
+                                                        data-id="<?php echo $servizio['id_servizio']; ?>">
+                                                        <?php echo htmlspecialchars($servizio['nome_servizio']); ?>
+                                                    </a>
+                                                <?php else: ?>
+                                                    <?php echo htmlspecialchars($servizio['nome_servizio']); ?>
+                                                <?php endif; ?>
+                                            </td>
                                             <td class="text-center">
                                                 <button class="btn btn-circle btn-secondary btn-sm dropdown" type="button"
                                                     id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
@@ -94,6 +139,24 @@ $servizi = $pdo->query("SELECT * FROM servizi ORDER BY nome_servizio ASC")->fetc
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modale Clienti Servizio -->
+        <div class="modal fade" id="clientiServizioModal" tabindex="-1" aria-labelledby="clientiServizioModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="clientiServizioModalLabel">Clienti per Servizio</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="clientiServizioList"></div>
                     </div>
                 </div>
             </div>
@@ -191,9 +254,9 @@ $servizi = $pdo->query("SELECT * FROM servizi ORDER BY nome_servizio ASC")->fetc
             </div>
         </div>
     </div>
-    <?php include(BASE_PATH . "/components/footer.php"); ?>
+    <?php include (BASE_PATH . "/components/footer.php"); ?>
     </div>
-    <?php include(BASE_PATH . "/components/scripts.php"); ?>
+    <?php include (BASE_PATH . "/components/scripts.php"); ?>
 
     <script>
         // Imposta i dati per la modale di modifica
@@ -218,6 +281,23 @@ $servizi = $pdo->query("SELECT * FROM servizi ORDER BY nome_servizio ASC")->fetc
 
             var modal = $(this);
             modal.find('#delete_id_servizio').val(id);
+        });
+        $('.servizio-link').on('click', function (event) {
+            event.preventDefault();
+            var servizioId = $(this).data('id');
+            var clienti = <?php echo json_encode($clientiPerServizio); ?>;
+
+            if (clienti[servizioId]) {
+                var clientiHtml = clienti[servizioId].map(function (cliente) {
+                    return '<li><span class="text-indigo font-weight-bold">' + cliente.nome_cliente + '</span> - ' + cliente.data_appuntamento + '</li>';
+                }).join('');
+
+                $('#clientiServizioList').html('<ul>' + clientiHtml + '</ul>');
+            } else {
+                $('#clientiServizioList').html('<p>Nessun cliente trovato.</p>');
+            }
+
+            $('#clientiServizioModal').modal('show');
         });
     </script>
 </body>

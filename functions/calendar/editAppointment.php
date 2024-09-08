@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <div class="card-body align-items-center">
                                 <div class="mb-3">
                                     <form
-                                        action="modifica_appuntamento.php?id_appuntamento=<?php echo $id_appuntamento; ?>"
+                                        action="editAppointment?id_appuntamento=<?php echo $id_appuntamento; ?>"
                                         method="POST">
                                         <label for="id_cliente" class="form-label">Cliente</label>
                                         <select name="id_cliente" id="id_cliente" class="form-control" required>

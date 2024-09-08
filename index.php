@@ -17,7 +17,7 @@ $sqlOggi = "
     FROM appuntamenti a
     JOIN clienti c ON a.id_cliente = c.id_cliente
     JOIN servizi s ON a.id_servizio = s.id_servizio
-    WHERE DATE(a.data_appuntamento) = :oggi AND  a.completato = 0
+    WHERE DATE(a.data_appuntamento) = :oggi AND a.completato = 0
     ORDER BY a.data_appuntamento ASC
 ";
 $stmtOggi = $pdo->prepare($sqlOggi);
@@ -67,12 +67,32 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                                     <h5 class="m-0 font-weight-bold text-indigo">Appuntamenti di Oggi</h5>
                                 </div>
                                 <div class="card-body">
-                                    <?php if (count($appuntamentiOggi) > 0): ?>
+                                    <?php
+                                    // Raggruppa gli appuntamenti per ora e cliente
+                                    $appuntamentiGiorno = [];
+                                    foreach ($appuntamentiOggi as $appuntamento) {
+                                        $ora = date('H:i', strtotime($appuntamento['data_appuntamento']));
+                                        $cliente = $appuntamento['cliente_nome'];
+                                        $chiave = "$ora - $cliente";
+
+                                        if (!isset($appuntamentiGiorno[$chiave])) {
+                                            $appuntamentiGiorno[$chiave] = [];
+                                        }
+                                        $appuntamentiGiorno[$chiave][] = $appuntamento['nome_servizio'];
+                                    }
+
+                                    // Mostra gli appuntamenti raggruppati
+                                    if (count($appuntamentiGiorno) > 0):
+                                    ?>
                                         <ul class="list-group">
-                                            <?php foreach ($appuntamentiOggi as $appuntamento): ?>
+                                            <?php foreach ($appuntamentiGiorno as $chiave => $servizi): ?>
                                                 <li class="list-group-item">
-                                                    <strong><?php echo htmlspecialchars(date('H:i', strtotime($appuntamento['data_appuntamento']))); ?>:</strong>
-                                                    <?php echo htmlspecialchars($appuntamento['cliente_nome'] . ' - ' . $appuntamento['nome_servizio']); ?>
+                                                    <strong><?php echo htmlspecialchars($chiave); ?>:</strong>
+                                                    <ul>
+                                                        <?php foreach ($servizi as $servizio): ?>
+                                                            <li><?php echo htmlspecialchars($servizio); ?></li>
+                                                        <?php endforeach; ?>
+                                                    </ul>
                                                 </li>
                                             <?php endforeach; ?>
                                         </ul>
@@ -90,12 +110,32 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                                     <h5 class="m-0 font-weight-bold text-orange">Appuntamenti nei prossimi 7 GG</h5>
                                 </div>
                                 <div class="card-body">
-                                    <?php if (count($appuntamentiSettimanaProssima) > 0): ?>
+                                    <?php
+                                    // Raggruppa gli appuntamenti per ora e cliente
+                                    $appuntamentiSettimana = [];
+                                    foreach ($appuntamentiSettimanaProssima as $appuntamento) {
+                                        $ora = date('H:i', strtotime($appuntamento['data_appuntamento']));
+                                        $cliente = $appuntamento['cliente_nome'];
+                                        $chiave = "$ora - $cliente";
+
+                                        if (!isset($appuntamentiSettimana[$chiave])) {
+                                            $appuntamentiSettimana[$chiave] = [];
+                                        }
+                                        $appuntamentiSettimana[$chiave][] = $appuntamento['nome_servizio'];
+                                    }
+
+                                    // Mostra gli appuntamenti raggruppati
+                                    if (count($appuntamentiSettimana) > 0):
+                                    ?>
                                         <ul class="list-group">
-                                            <?php foreach ($appuntamentiSettimanaProssima as $appuntamento): ?>
+                                            <?php foreach ($appuntamentiSettimana as $chiave => $servizi): ?>
                                                 <li class="list-group-item">
-                                                    <strong><?php echo htmlspecialchars(date('d-m-Y H:i', strtotime($appuntamento['data_appuntamento']))); ?>:</strong>
-                                                    <?php echo htmlspecialchars($appuntamento['cliente_nome'] . ' - ' . $appuntamento['nome_servizio']); ?>
+                                                    <strong><?php echo htmlspecialchars($chiave); ?>:</strong>
+                                                    <ul>
+                                                        <?php foreach ($servizi as $servizio): ?>
+                                                            <li><?php echo htmlspecialchars($servizio); ?></li>
+                                                        <?php endforeach; ?>
+                                                    </ul>
                                                 </li>
                                             <?php endforeach; ?>
                                         </ul>
@@ -115,6 +155,7 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                 </div>
             </div>
             <?php include(BASE_PATH . "/components/footer.php"); ?>
+  
         </div>
     </div>
 
