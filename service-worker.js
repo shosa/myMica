@@ -1,4 +1,4 @@
-const CACHE_NAME = 'myMicaApp';
+const CACHE_NAME = 'app-mymica-v1.2';
 const urlsToCache = [
   '/',
   '/css/sb-admin-2.css',

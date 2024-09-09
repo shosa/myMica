@@ -76,7 +76,7 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
         }
 
         // Controlla se il giorno corrente è oggi
-        $badgeOggi = $oggi->format('Y-m-d') === $giorno->format('Y-m-d') ? "<span class='badge badge-success float-right '>OGGI</span>" : '';
+        $badgeOggi = $oggi->format('Y-m-d') === $giorno->format('Y-m-d') ? "<span class=' badge badge-success float-right '>OGGI</span>" : '';
 
         echo '<div class="col">';
         echo '<div class="card mt-2 ' . htmlspecialchars(trim($class)) . '">';
@@ -86,7 +86,7 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
         echo '<div class="card-body ">';
         echo '<ul class="list-group list-group-flush">';
 
-        // Unisci appuntamenti e annotazioni del giorno
+        // Raggruppa gli appuntamenti per ora, cliente e data
         $appuntamentiGiorno = array_filter($appuntamenti, function ($a) use ($giorno) {
             return (new DateTime($a['data_appuntamento']))->format('Y-m-d') === $giorno->format('Y-m-d');
         });
@@ -95,12 +95,19 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
             return (new DateTime($annotazione['data']))->format('Y-m-d') === $giorno->format('Y-m-d');
         });
 
-        // Combina appuntamenti e annotazioni in un unico array
+        // Combina appuntamenti e annotazioni in un unico array di eventi ordinato per orario
         $eventi = [];
 
         foreach ($appuntamentiGiorno as $appuntamento) {
             $ora = (new DateTime($appuntamento['data_appuntamento']))->format('H:i');
-            $eventi[] = ['tipo' => 'appuntamento', 'ora' => $ora, 'dati' => $appuntamento];
+            $cliente = $appuntamento['nome_cliente'];
+            $chiave = "$ora-$cliente";
+
+            if (!isset($eventi[$chiave])) {
+                $eventi[$chiave] = ['tipo' => 'appuntamento', 'ora' => $ora, 'cliente' => $cliente, 'listaAppuntamenti' => [], 'tempoTotale' => 0];
+            }
+            $eventi[$chiave]['listaAppuntamenti'][] = $appuntamento;
+            $eventi[$chiave]['tempoTotale'] += $appuntamento['tempo_servizio'];
         }
 
         foreach ($annotazioniGiorno as $annotazione) {
@@ -108,7 +115,7 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
             $eventi[] = ['tipo' => 'annotazione', 'ora' => $ora, 'dati' => $annotazione];
         }
 
-        // Ordina gli eventi in base all'ora
+        // Ordina gli eventi per orario
         usort($eventi, function ($a, $b) {
             return strcmp($a['ora'], $b['ora']);
         });
@@ -116,30 +123,33 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
         // Visualizza gli eventi
         foreach ($eventi as $evento) {
             if ($evento['tipo'] === 'appuntamento') {
-                $appuntamento = $evento['dati'];
+                $cliente = $evento['cliente'];
                 $ora = $evento['ora'];
-                $cliente = htmlspecialchars($appuntamento['nome_cliente']);
-                $tempoTotale = $appuntamento['tempo_servizio'];
-
-                echo "<li class='list-group-item d-flex justify-content-between align-items-center font-weight-bold text-dark'>$ora - $cliente <span class='badge badge-warning'>$tempoTotale min</span></li>";
-                echo "<ul class='list-group'>";
-                $icona = $appuntamento['completato'] == 0 ? '<span class="icon"><i class="fal fa-clock text-primary"></i></span>' : '<span class="icon"><i class="fal fa-check text-success"></i></span>';
-                $coloreAppuntamento = $appuntamento['completato'] == 0 ? 'font-weight-normal text-primary' : 'font-weight-normal text-grey';
-                $nome_servizio = htmlspecialchars($appuntamento['nome_servizio']);
-                $tempo_servizio = htmlspecialchars($appuntamento['tempo_servizio']);
-                $id_appuntamento = $appuntamento['id_appuntamento'];
-
-                echo "<li class='appuntamento list-group-item border-0 " . $coloreAppuntamento . " appointment-item' data-id='$id_appuntamento' data-cliente='$cliente' data-ora='$ora' data-servizio='$nome_servizio'>" . $icona . " <span class='appointment-text'>$nome_servizio <i>($tempo_servizio min)</i></span></li>";
+                $tempoTotale = $evento['tempoTotale'];
+                echo "<div class='border border-primary rounded  mb-1'>";
+                echo "<li class='list-group-item d-flex justify-content-between align-items-center font-weight-bold text-dark border-0'>$ora - $cliente <span class='badge badge-warning'>$tempoTotale min</span></li>";
+                echo '<ul class="list-group" style="border-radius: 0 0 5px 5px !important;">';
+                foreach ($evento['listaAppuntamenti'] as $appuntamento) {
+                    $icona = $appuntamento['completato'] == 0 ? '<span class="icon"><i class="fal fa-clock text-primary a"></i></span>' : '<span class="icon"><i class="fal fa-check text-success"></i></span>';
+                    $coloreAppuntamento = $appuntamento['completato'] == 0 ? 'font-weight-normal text-primary' : 'font-weight-normal text-grey';
+                    $nome_servizio = htmlspecialchars($appuntamento['nome_servizio']);
+                    $tempo_servizio = htmlspecialchars($appuntamento['tempo_servizio']);
+                    $id_appuntamento = $appuntamento['id_appuntamento'];
+                    echo "<li class='appuntamento list-group-item border-0 " . $coloreAppuntamento . " appointment-item' data-id='$id_appuntamento' data-cliente='$cliente' data-ora='$ora' data-servizio='$nome_servizio'>" . $icona . " <span class='appointment-text'>$nome_servizio <i>($tempo_servizio min)</i></span></li>";
+                }
                 echo "</ul>";
+                echo "</div>"; // Chiudi il div per l'appuntament
             } elseif ($evento['tipo'] === 'annotazione') {
                 $ora = $evento['ora'];
                 $note = htmlspecialchars($evento['dati']['note']);
-              
+                echo "<div class='border border-orange rounded  mb-1'>";
                 echo "<li class='list-group-item border-0 text-orange'><i class='fal fa-sticky-note'></i> $ora - $note</li>";
+                echo "</div>";
             }
         }
 
         echo '</ul>';
+
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -176,7 +186,7 @@ $annotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
                                     href="calendario.php?anno=<?php echo $anno; ?>&mese=<?php echo $mese; ?>&giorno=<?php echo $giorno; ?>&action=next"><i
                                         class="far fa-chevron-right"></i></a></div>
                         </div><?php generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni); ?><button
-                            class="btn btn-indigo btn-lg floating-btn" data-target="#newAppointmentModal"
+                            class="btn btn-primary btn-lg floating-btn" data-target="#newAppointmentModal"
                             data-toggle="modal"><i class="fa fa-plus"></i></button>
                         <button class="btn btn-orange btn-lg floating-btn2" data-target="#newAnnotationModal"
                             data-toggle="modal">

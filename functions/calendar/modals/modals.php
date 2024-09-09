@@ -41,7 +41,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="tempo_servizio" class="form-label">Tempo(in minuti)</label>
+                        <label for="tempo_servizio" class="form-label">Tempo (in minuti)</label>
                         <input type="number" name="tempo_servizio" id="tempo_servizio" class="form-control"
                             placeholder="Solo se diverso da quello standard">
                     </div>
@@ -155,7 +155,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                    <button type="submit" class="btn btn-primary">Salva Annotazione</button>
+                    <button type="submit" class="btn btn-orange">Salva Annotazione</button>
                 </div>
             </form>
         </div>

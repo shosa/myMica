@@ -83,7 +83,7 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
 
                                     // Mostra gli appuntamenti raggruppati
                                     if (count($appuntamentiGiorno) > 0):
-                                    ?>
+                                        ?>
                                         <ul class="list-group">
                                             <?php foreach ($appuntamentiGiorno as $chiave => $servizi): ?>
                                                 <li class="list-group-item">
@@ -115,8 +115,9 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                                     $appuntamentiSettimana = [];
                                     foreach ($appuntamentiSettimanaProssima as $appuntamento) {
                                         $ora = date('H:i', strtotime($appuntamento['data_appuntamento']));
+                                        $data = date('d-m', strtotime($appuntamento['data_appuntamento']));
                                         $cliente = $appuntamento['cliente_nome'];
-                                        $chiave = "$ora - $cliente";
+                                        $chiave = "<span class='badge badge-orange'>$data</span> $ora - $cliente";
 
                                         if (!isset($appuntamentiSettimana[$chiave])) {
                                             $appuntamentiSettimana[$chiave] = [];
@@ -126,11 +127,11 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
 
                                     // Mostra gli appuntamenti raggruppati
                                     if (count($appuntamentiSettimana) > 0):
-                                    ?>
+                                        ?>
                                         <ul class="list-group">
                                             <?php foreach ($appuntamentiSettimana as $chiave => $servizi): ?>
                                                 <li class="list-group-item">
-                                                    <strong><?php echo htmlspecialchars($chiave); ?>:</strong>
+                                                    <strong><?php echo $chiave; ?>:</strong>
                                                     <ul>
                                                         <?php foreach ($servizi as $servizio): ?>
                                                             <li><?php echo htmlspecialchars($servizio); ?></li>
@@ -155,7 +156,7 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                 </div>
             </div>
             <?php include(BASE_PATH . "/components/footer.php"); ?>
-  
+
         </div>
     </div>
 

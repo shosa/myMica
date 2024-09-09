@@ -5511,6 +5511,11 @@ a.badge:focus {
   background-color: #4e73df;
 }
 
+.badge-orange {
+  color: #fff;
+  background-color: var(--orange);
+}
+
 a.badge-primary:hover,
 a.badge-primary:focus {
   color: #fff;

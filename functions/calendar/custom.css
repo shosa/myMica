@@ -61,6 +61,6 @@
 }
 
 .appuntamento:hover {
-    background-color: var(--indigo);
+    background-color: var(--primary);
     color: white !important;
 }
