@@ -59,7 +59,7 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
         $inizio_settimana->modify('+1 day');
     }
 
-    echo "<h5 class='text-center mt-2 mb-2'>Dal " . $formatter->format($giorni_settimana[0]) . "</h5><h5 class='text-center mb-2 '> Al " . $formatter->format($giorni_settimana[6]) . "</h5>";
+    echo "<h6 class='text-center mb-2'><span class='text-dark font-weight-bold'>" . strtoupper($formatter->format($giorni_settimana[0])) . "</span> <br> <span class='text-dark font-weight-bold'>" . strtoupper($formatter->format($giorni_settimana[6])) . "</span></h6>";
     echo '<div class="row row-cols-1 row-cols-md-12">';
 
     foreach ($giorni_settimana as $giorno) {
@@ -76,7 +76,7 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
         }
 
         // Controlla se il giorno corrente è oggi
-        $badgeOggi = $oggi->format('Y-m-d') === $giorno->format('Y-m-d') ? "<span class=' badge badge-success float-right '>OGGI</span>" : '';
+        $badgeOggi = $oggi->format('Y-m-d') === $giorno->format('Y-m-d') ? "<span class='badge badge-success float-right'>OGGI</span>" : '';
 
         echo '<div class="col">';
         echo '<div class="card mt-2 ' . htmlspecialchars(trim($class)) . '">';
@@ -95,8 +95,9 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
             return (new DateTime($annotazione['data']))->format('Y-m-d') === $giorno->format('Y-m-d');
         });
 
-        // Combina appuntamenti e annotazioni in un unico array di eventi ordinato per orario
+        // Raggruppa appuntamenti per cliente e ora
         $eventi = [];
+        $appuntamentiPerCliente = [];
 
         foreach ($appuntamentiGiorno as $appuntamento) {
             $ora = (new DateTime($appuntamento['data_appuntamento']))->format('H:i');
@@ -104,10 +105,19 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
             $chiave = "$ora-$cliente";
 
             if (!isset($eventi[$chiave])) {
-                $eventi[$chiave] = ['tipo' => 'appuntamento', 'ora' => $ora, 'cliente' => $cliente, 'listaAppuntamenti' => [], 'tempoTotale' => 0];
+                $eventi[$chiave] = ['tipo' => 'appuntamento', 'ora' => $ora, 'cliente' => $cliente, 'listaAppuntamenti' => [], 'tempoTotale' => 0, 'completato' => 1];
             }
             $eventi[$chiave]['listaAppuntamenti'][] = $appuntamento;
             $eventi[$chiave]['tempoTotale'] += $appuntamento['tempo_servizio'];
+
+            // Raggruppa gli appuntamenti per cliente
+            if (!isset($appuntamentiPerCliente[$cliente])) {
+                $appuntamentiPerCliente[$cliente] = ['totale' => 0, 'completati' => 0];
+            }
+            $appuntamentiPerCliente[$cliente]['totale']++;
+            if ($appuntamento['completato'] == 1) {
+                $appuntamentiPerCliente[$cliente]['completati']++;
+            }
         }
 
         foreach ($annotazioniGiorno as $annotazione) {
@@ -126,9 +136,29 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
                 $cliente = $evento['cliente'];
                 $ora = $evento['ora'];
                 $tempoTotale = $evento['tempoTotale'];
-                echo "<div class='border border-primary rounded  mb-1'>";
-                echo "<li class='list-group-item d-flex justify-content-between align-items-center font-weight-bold text-dark border-0'>$ora - $cliente <span class='badge badge-warning'>$tempoTotale min</span></li>";
+                $stato = '';
+                $badge = '';
+                // Mostra il badge in base allo stato di completamento
+                if ($appuntamentiPerCliente[$cliente]['totale'] === $appuntamentiPerCliente[$cliente]['completati']) {
+                    $badge .= "<span class='badge badge-success'>FATTO</span>";
+                    $stato .= 'border-success';
+                } else {
+                    $badge .= "<span class='badge badge-warning'>$tempoTotale min</span>";
+                    $stato .= 'border-primary';
+                }
+
+                echo "<div class='border $stato rounded mb-1'>";
+                echo "<li class='list-group-item d-flex justify-content-between align-items-center font-weight-bold text-dark border-0'>";
+                echo "$ora - $cliente ";
+                $stato = '';
+                // Mostra il badge in base allo stato di completamento
+
+                echo $badge;
+
+
+                echo "</li>";
                 echo '<ul class="list-group" style="border-radius: 0 0 5px 5px !important;">';
+
                 foreach ($evento['listaAppuntamenti'] as $appuntamento) {
                     $icona = $appuntamento['completato'] == 0 ? '<span class="icon"><i class="fal fa-clock text-primary a"></i></span>' : '<span class="icon"><i class="fal fa-check text-success"></i></span>';
                     $coloreAppuntamento = $appuntamento['completato'] == 0 ? 'font-weight-normal text-primary' : 'font-weight-normal text-grey';
@@ -137,23 +167,26 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
                     $id_appuntamento = $appuntamento['id_appuntamento'];
                     echo "<li class='appuntamento list-group-item border-0 " . $coloreAppuntamento . " appointment-item' data-id='$id_appuntamento' data-cliente='$cliente' data-ora='$ora' data-servizio='$nome_servizio'>" . $icona . " <span class='appointment-text'>$nome_servizio <i>($tempo_servizio min)</i></span></li>";
                 }
+
                 echo "</ul>";
-                echo "</div>"; // Chiudi il div per l'appuntament
+                echo "</div>"; // Chiudi il div per l'appuntamento
             } elseif ($evento['tipo'] === 'annotazione') {
                 $ora = $evento['ora'];
                 $note = htmlspecialchars($evento['dati']['note']);
-                echo "<div class='border border-orange rounded  mb-1'>";
-                echo "<li class='list-group-item border-0 text-orange'><i class='fal fa-sticky-note'></i> $ora - $note</li>";
+                $id_annotazione = $evento['dati']['id_annotazione'];
+
+                echo "<div class='border border-orange rounded mb-1'>";
+                echo "<li class='list-group-item border-0 text-orange annotation-item annotazione' data-ora='$ora' data-id='$id_annotazione' data-note='$note'><i class='fal fa-sticky-note'></i> $ora - $note</li>";
                 echo "</div>";
             }
         }
 
         echo '</ul>';
-
         echo '</div>';
         echo '</div>';
         echo '</div>';
     }
+
     echo '</div>';
 }
 
@@ -375,6 +408,7 @@ $annotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
                                                         aggiornaDettagliAppuntamento(data);
                                                     })
                                                     .catch(error => console.error('Errore:', error));
+                                                location.reload();
                                             });
                                         } else {
                                             Swal.fire({
@@ -393,9 +427,94 @@ $annotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
                                         console.error('Errore:', error);
                                     });
                             }
+
                         });
                     });
-                });</script><?php include(BASE_PATH . "/components/footer.php"); ?>
+                });
+                document.addEventListener('DOMContentLoaded', function () {
+                    // Apre il modale quando si clicca su una annotazione
+                    document.querySelectorAll('.annotation-item').forEach(item => {
+                        item.addEventListener('click', function () {
+                            const idAnnotazione = this.dataset.id;
+
+                            fetch(`getAnnotationDetail?id_annotazione=${idAnnotazione}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    aggiornaDettagliAnnotazione(data);
+                                    $('#annotationDetailsModal').modal('show');
+                                })
+                                .catch(error => console.error('Errore:', error));
+                        });
+                    });
+
+                    // Funzione per aggiornare i dettagli dell'annotazione nel modal
+                    function aggiornaDettagliAnnotazione(data) {
+                        const dataAnnotazione = new Date(data.data);
+
+                        // Imposta il campo data e ora
+                        document.getElementById('detail_data_annotazione').value = dataAnnotazione.toISOString().split('T')[0]; // Imposta la data in formato YYYY-MM-DD
+                        document.getElementById('detail_ora_annotazione').value = dataAnnotazione.toTimeString().substring(0, 5); // Imposta l'ora in formato HH:MM
+
+                        // Imposta il contenuto delle note
+                        document.getElementById('detail_note_annotazione').value = data.note;
+
+                        // Imposta l'ID annotazione visibile nel modale
+                        document.getElementById('detail_id_annotazione').textContent = "#" + data.id_annotazione;
+
+                        // Imposta i bottoni di modifica e cancellazione con il dataset ID annotazione
+                        document.getElementById('editAnnotationBtn').dataset.idAnnotazione = data.id_annotazione;
+                        document.getElementById('deleteAnnotationBtn').dataset.idAnnotazione = data.id_annotazione;
+                    }
+
+                    // Gestione della modifica dell'annotazione
+                    document.getElementById('editAnnotationBtn').addEventListener('click', function () {
+                        const idAnnotazione = this.dataset.idAnnotazione;
+                        const data = document.getElementById('detail_data_annotazione').value;
+                        const ora = document.getElementById('detail_ora_annotazione').value;
+                        const note = document.getElementById('detail_note_annotazione').value;
+                        const dataCompleta = `${data} ${ora}`;
+
+                        fetch(`editAnnotation`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: new URLSearchParams({ id_annotazione: idAnnotazione, data: dataCompleta, note: note })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    location.reload();
+                                } else {
+                                    alert('Errore nella modifica dell\'annotazione.');
+                                }
+                            })
+                            .catch(error => console.error('Errore:', error));
+                    });
+
+                    // Gestione della cancellazione dell'annotazione
+                    document.getElementById('deleteAnnotationBtn').addEventListener('click', function () {
+                        const idAnnotazione = this.dataset.idAnnotazione;
+
+                        if (confirm('Sei sicuro di voler cancellare questa annotazione?')) {
+                            fetch('deleteAnnotation.php', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: new URLSearchParams({ id_annotazione: idAnnotazione })
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        location.reload();
+                                    } else {
+                                        alert('Errore nella cancellazione dell\'annotazione.');
+                                    }
+                                })
+                                .catch(error => console.error('Errore:', error));
+                        }
+                    });
+                });
+
+            </script>
+            <?php include(BASE_PATH . "/components/footer.php"); ?>
         </div>
     </div><?php include(BASE_PATH . "/components/scripts.php"); ?>
 </body>

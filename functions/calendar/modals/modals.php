@@ -3,8 +3,10 @@
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+            <span class="h6 font-weight-bold text-white p-1 text-center bg-primary "
+                style="widht:100%;">APPUNTAMENTO</span>
             <div class="modal-header">
-                <h5 class="modal-title" id="newAppointmentModalLabel">Nuovo Appuntamento</h5>
+                <h5 class="modal-title" id="newAppointmentModalLabel">Nuovo</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -66,8 +68,9 @@
     aria-hidden="true" style="background: rgba(0, 0, 0, 0.35) !important;">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+            <span class="h6 font-weight-bold text-white p-1 text-center bg-success " style="widht:100%;">CLIENTE</span>
             <div class="modal-header">
-                <h5 class="modal-title" id="newClienteModalLabel">Nuovo Cliente</h5>
+                <h5 class="modal-title" id="newClienteModalLabel">Nuovo</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -132,8 +135,10 @@
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
+            <span class="h6 font-weight-bold text-white p-1 text-center bg-orange "
+                style="widht:100%;">ANNOTAZIONE</span>
             <div class="modal-header">
-                <h5 class="modal-title" id="newAnnotationModalLabel">Nuova Annotazione</h5>
+                <h5 class="modal-title" id="newAnnotationModalLabel">Nuova</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -144,9 +149,9 @@
                         <label for="dataAnnotazione">Data</label>
                         <input type="date" class="form-control" id="dataAnnotazione" name="dataAnnotazione" required>
                         <div class="mb-3">
-                        <label for="oraAnnotazione" class="form-label">Ora</label>
-                        <input type="time" name="oraAnnotazione" id="oraAnnotazione" class="form-control" required>
-                    </div>
+                            <label for="oraAnnotazione" class="form-label">Ora</label>
+                            <input type="time" name="oraAnnotazione" id="oraAnnotazione" class="form-control" required>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="nota">Nota</label>
@@ -154,10 +159,50 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                    <button type="submit" class="btn btn-orange">Salva Annotazione</button>
+                    <button type="submit" class="btn btn-orange btn-block btn-lg">Crea Annotazione</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+<!-- Modale modifica annotazione -->
+<div class="modal fade" id="annotationDetailsModal" tabindex="-1" aria-labelledby="annotationDetailsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <span class="h6 font-weight-bold text-white p-1 text-center bg-orange "
+                style="widht:100%;">ANNOTAZIONE</span>
+            <div class="modal-header">
+                <h5 class="modal-title" id="annotationDetailsModalLabel">ANNOTAZIONE </h5><span
+                class="h4 text-dark font-weight-bold ml-2" id="detail_id_annotazione"></span>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Chiudi">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="annotationDetailsForm">
+                    <div class="form-group">
+                        <label for="detail_data_annotazione">Data</label>
+                        <input type="date" class="form-control" id="detail_data_annotazione" required>
+                        <label for="detail_ora_annotazione">Ora</label>
+                        <input type="time" class="form-control" id="detail_ora_annotazione" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="detail_note_annotazione">Note</label>
+                        <textarea class="form-control" id="detail_note_annotazione" rows="3"
+                            placeholder="Inserisci il contenuto"></textarea>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="deleteAnnotationBtn" type="button"
+                    class="btn btn-light border-danger text-danger btn-lg shadow btn-circle mr-4"><i
+                        class="fal fa-trash"></i></button>
+                <button id="editAnnotationBtn" type="button"
+                    class="btn btn-success border-success text-white btn-lg shadow btn-circle mr-4"><i
+                        class="fal fa-save"></i></button>
+            </div>
         </div>
     </div>
 </div>

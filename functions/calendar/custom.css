@@ -64,3 +64,9 @@
     background-color: var(--primary);
     color: white !important;
 }
+
+.annotazione:hover {
+    background-color: var(--orange);
+    color: white !important;
+}
+

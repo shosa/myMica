@@ -1,9 +1,9 @@
 <?php
-include ("../../config/config.php");
+include("../../config/config.php");
 session_start();
 $pdo = getDbInstance();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-include (BASE_PATH . "/components/header.php");
+include(BASE_PATH . "/components/header.php");
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (isset($_POST['add_servizio'])) {
@@ -75,16 +75,16 @@ foreach ($risultatiClienti as $cliente) {
 
 <body>
     <div id="wrapper">
-        <?php include (BASE_PATH . "/components/navbar.php"); ?>
+        <?php include(BASE_PATH . "/components/navbar.php"); ?>
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
-                <?php include (BASE_PATH . "/components/topbar.php"); ?>
+                <?php include(BASE_PATH . "/components/topbar.php"); ?>
                 <div class="container-fluid">
                     <h1 class="h3 mb-4 text-gray-800">Gestione Servizi</h1>
                     <!-- Tabella Servizi -->
                     <div class="card mb-4">
                         <div class="card-header">
-                            <button class="btn btn-primary btn-block" data-toggle="modal"
+                            <button class="btn btn-indigo btn-block" data-toggle="modal"
                                 data-target="#addServizioModal">Aggiungi Servizio</button>
                         </div>
                         <div class="card-body">
@@ -149,6 +149,8 @@ foreach ($risultatiClienti as $cliente) {
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
+                    <span class="h6 font-weight-bold text-white p-1 text-center bg-indigo "
+                        style="widht:100%;">SERVIZIO</span>
                     <div class="modal-header">
                         <h5 class="modal-title" id="clientiServizioModalLabel">Clienti per Servizio</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -167,6 +169,8 @@ foreach ($risultatiClienti as $cliente) {
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
+                    <span class="h6 font-weight-bold text-white p-1 text-center bg-indigo "
+                        style="widht:100%;">SERVIZIO</span>
                     <div class="modal-header">
                         <h5 class="modal-title" id="addServizioModalLabel">Aggiungi Servizio</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -188,7 +192,7 @@ foreach ($risultatiClienti as $cliente) {
                                 <label for="costo" class="form-label">Prezzo</label>
                                 <input type="number" name="costo" id="costo" class="form-control" required>
                             </div>
-                            <button type="submit" name="add_servizio" class="btn btn-block btn-primary">Aggiungi
+                            <button type="submit" name="add_servizio" class="btn btn-block btn-indigo">Aggiungi
                                 Servizio</button>
                         </form>
                     </div>
@@ -201,6 +205,8 @@ foreach ($risultatiClienti as $cliente) {
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
+                    <span class="h6 font-weight-bold text-white p-1 text-center bg-indigo "
+                        style="widht:100%;">SERVIZIO</span>
                     <div class="modal-header">
                         <h5 class="modal-title" id="editServizioModalLabel">Modifica Servizio</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -237,6 +243,8 @@ foreach ($risultatiClienti as $cliente) {
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
+                    <span class="h6 font-weight-bold text-white p-1 text-center bg-indigo "
+                        style="widht:100%;">SERVIZIO</span>
                     <div class="modal-header">
                         <h5 class="modal-title" id="deleteServizioModalLabel">Elimina Servizio</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -247,16 +255,17 @@ foreach ($risultatiClienti as $cliente) {
                         <form action="services.php" method="POST">
                             <input type="hidden" name="id_servizio" id="delete_id_servizio">
                             <p>Sei sicuro di voler eliminare questo servizio?</p>
-                            <button type="submit" name="delete_servizio" class="btn btn-danger">Elimina</button>
+                            <button type="submit" name="delete_servizio"
+                                class="btn btn-danger btn-block">Elimina</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <?php include (BASE_PATH . "/components/footer.php"); ?>
+    <?php include(BASE_PATH . "/components/footer.php"); ?>
     </div>
-    <?php include (BASE_PATH . "/components/scripts.php"); ?>
+    <?php include(BASE_PATH . "/components/scripts.php"); ?>
 
     <script>
         // Imposta i dati per la modale di modifica
