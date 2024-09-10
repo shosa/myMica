@@ -22,6 +22,7 @@
     /* Allinea orizzontalmente il testo al centro */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     /* Aggiunge un'ombra per il pulsante */
+    z-index: 999;
 }
 
 .floating-btn .btn-lg {
@@ -53,7 +54,6 @@
     /* Allinea orizzontalmente il testo al centro */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     /* Aggiunge un'ombra per il pulsante */
-    z-index: 999;
 }
 
 .floating-btn2 .btn-lg {

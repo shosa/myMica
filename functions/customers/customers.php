@@ -66,6 +66,7 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
     $appuntamentiPerCliente[$id_cliente][] = "<span class='text-indigo font-weight-bold'>$servizio</span> - $ora";
 }
 ?>
+<link href="custom.css" rel="stylesheet">
 
 <body>
     <div id="wrapper">
@@ -83,9 +84,10 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
 
                     <!-- Tabella Clienti -->
                     <div class="card mb-4">
-                        <div class="card-header">
-                            <button class="btn btn-success btn-block" data-toggle="modal"
-                                data-target="#addClienteModal">Aggiungi Cliente</button>
+                        <div class="card-header border-success">
+                            <span class="text-success font-weight-bold">RUBRICA</span>
+                            <button class="btn btn-success floating-btn" data-toggle="modal"
+                                data-target="#addClienteModal"><i class="fa fa-plus"></i></button>
                         </div>
                         <div class="card-body">
                             <table class="table table-hover table-striped table-bordered" id="clientTable">
@@ -114,22 +116,24 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
                                             </td>
                                             <td class="text-center">
                                                 <div class="dropdown">
-                                                    <button class="btn btn-circle btn-secondary btn-sm dropdown"
+                                                    <button
+                                                        class="btn btn-circle btn-light border-primary text-primary btn-sm dropdown"
                                                         type="button" id="dropdownMenuButton" data-toggle="dropdown"
                                                         aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fal fa-ellipsis-vertical"></i>
+                                                        <i class="fa fa-angle-right"></i>
                                                     </button>
                                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                        <a class="dropdown-item edit-btn" href="#" data-toggle="modal"
+                                                        <a class="dropdown-item edit-btn h6" href="#" data-toggle="modal"
                                                             data-target="#editClienteModal"
                                                             data-id="<?php echo $cliente['id_cliente']; ?>"
                                                             data-nome="<?php echo htmlspecialchars($cliente['nome_cliente']); ?>"
                                                             data-telefono="<?php echo htmlspecialchars($cliente['numero_telefono']); ?>"><i
-                                                                class="fal fa-pencil"></i> Modifica</a>
-                                                        <a class="dropdown-item delete-btn" href="#" data-toggle="modal"
+                                                                class="fal fa-pencil"></i> MODIFICA</a>
+                                                        <hr>
+                                                        <a class="dropdown-item delete-btn h6" href="#" data-toggle="modal"
                                                             data-target="#deleteClienteModal"
                                                             data-id="<?php echo $cliente['id_cliente']; ?>"><i
-                                                                class="fal fa-trash"></i> Elimina</a>
+                                                                class="fal fa-trash"></i> ELIMINA</a>
                                                     </div>
                                                 </div>
                                             </td>
@@ -171,7 +175,7 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
                     <span class="h6 font-weight-bold text-white p-1 text-center bg-success "
                         style="widht:100%;">CLIENTE</span>
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addClienteModalLabel">Aggiungi Cliente</h5>
+                        <h5 class="modal-title" id="addClienteModalLabel">Nuovo</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -245,8 +249,10 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
                     <div class="modal-body">
                         <form action="customers.php" method="POST">
                             <input type="hidden" name="id_cliente" id="delete_id_cliente">
-                            <p>Sei sicuro di voler eliminare questo cliente?</p>
-                            <button type="submit" name="delete_cliente" class="btn btn-danger btn-block">Elimina</button>
+                            <p>Sei sicuro di voler eliminare questo cliente? </p>
+                            <p class="text-danger"><b>Se presenti appuntamenti per questo cliente verranno cancellati anche essi.</b></p>
+                            <button type="submit" name="delete_cliente"
+                                class="btn btn-danger btn-block">Elimina</button>
                         </form>
                     </div>
                 </div>

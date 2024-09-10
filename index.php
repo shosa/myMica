@@ -148,11 +148,11 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                         </div>
                     </div>
                     <!-- FINE ROW CARDS -->
-
+                    <hr>
                     <div class="mx-auto text-center">
                         <img src="<?php echo BASE_URL ?>/img/logoMini.png" alt="Logo" style="max-height: 100px;">
                     </div>
-                    <hr>
+                    
                 </div>
             </div>
             <?php include(BASE_PATH . "/components/footer.php"); ?>

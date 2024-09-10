@@ -72,6 +72,7 @@ foreach ($risultatiClienti as $cliente) {
     ];
 }
 ?>
+<link href="custom.css" rel="stylesheet">
 
 <body>
     <div id="wrapper">
@@ -83,9 +84,10 @@ foreach ($risultatiClienti as $cliente) {
                     <h1 class="h3 mb-4 text-gray-800">Gestione Servizi</h1>
                     <!-- Tabella Servizi -->
                     <div class="card mb-4">
-                        <div class="card-header">
-                            <button class="btn btn-indigo btn-block" data-toggle="modal"
-                                data-target="#addServizioModal">Aggiungi Servizio</button>
+                        <div class="card-header border-indigo">
+                            <span class="text-indigo font-weight-bold">SERVIZI</span>
+                            <button class="btn btn-indigo floating-btn" data-toggle="modal"
+                                data-target="#addServizioModal"><i class="fa fa-plus"></i></button>
                         </div>
                         <div class="card-body">
                             <table class="table table-bordered table-striped">
@@ -113,24 +115,26 @@ foreach ($risultatiClienti as $cliente) {
                                                 <?php endif; ?>
                                             </td>
                                             <td class="text-center">
-                                                <button class="btn btn-circle btn-secondary btn-sm dropdown" type="button"
-                                                    id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                                    aria-expanded="false">
-                                                    <i class="fal fa-ellipsis-vertical"></i>
+                                                <button
+                                                    class="btn btn-circle btn-light border-primary text-primary btn-sm dropdown"
+                                                    type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                                                    aria-haspopup="true" aria-expanded="false">
+                                                    <i class="fa fa-angle-right"></i>
                                                 </button>
                                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                                    <a class="dropdown-item h6" href="#" data-toggle="modal"
                                                         data-target="#editServizioModal"
                                                         data-id="<?php echo $servizio['id_servizio']; ?>"
                                                         data-nome="<?php echo htmlspecialchars($servizio['nome_servizio']); ?>"
                                                         data-tempo="<?php echo htmlspecialchars($servizio['tempo_medio']); ?>"
                                                         data-prezzo="<?php echo htmlspecialchars($servizio['costo']); ?>">
-                                                        <i class="fal fa-pencil"></i> Modifica
+                                                        <i class="fal fa-pencil"></i> MODIFICA
                                                     </a>
-                                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                                    <hr>
+                                                    <a class="dropdown-item h6" href="#" data-toggle="modal"
                                                         data-target="#deleteServizioModal"
                                                         data-id="<?php echo $servizio['id_servizio']; ?>">
-                                                        <i class="fal fa-trash"></i> Elimina
+                                                        <i class="fal fa-trash"></i> ELIMINA
                                                     </a>
                                                 </div>
                                             </td>
@@ -255,6 +259,7 @@ foreach ($risultatiClienti as $cliente) {
                         <form action="services.php" method="POST">
                             <input type="hidden" name="id_servizio" id="delete_id_servizio">
                             <p>Sei sicuro di voler eliminare questo servizio?</p>
+                            <p class="text-danger"><b>Se presenti appuntamenti per questo servizio verranno cancellati anche essi.</b></p>
                             <button type="submit" name="delete_servizio"
                                 class="btn btn-danger btn-block">Elimina</button>
                         </form>
