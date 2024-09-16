@@ -83,6 +83,7 @@ foreach ($risultatiClienti as $cliente) {
                 <div class="container-fluid">
                     <h1 class="h3 mb-4 text-gray-800" >Gestione Servizi</h1>
                     <!-- Tabella Servizi -->
+                    <?php include(BASE_PATH . "/functions/notification/notification.php"); ?>
                     <div class="card mb-4 shadow-sm">
                         <div class="card-header border-indigo">
                             <span class="text-indigo font-weight-bold">SERVIZI</span>

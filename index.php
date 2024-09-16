@@ -55,7 +55,7 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                 <div class="container-fluid">
                     <?php require_once BASE_PATH . "/utils/alerts.php"; ?>
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800"  >Dashboard</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
                     </div>
 
                     <!-- INIZIO ROW CARDS -->
@@ -67,6 +67,7 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                                     <h5 class="m-0 font-weight-bold text-indigo">Appuntamenti di Oggi</h5>
                                 </div>
                                 <div class="card-body">
+                               
                                     <?php
                                     // Raggruppa gli appuntamenti per ora e cliente
                                     $appuntamentiGiorno = [];
@@ -102,6 +103,7 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                                 </div>
                             </div>
                         </div>
+                        <?php include(BASE_PATH . "/functions/notification/notification.php"); ?>
 
                         <!-- Card Appuntamenti della Settimana Prossima -->
                         <div class="col-md-6">

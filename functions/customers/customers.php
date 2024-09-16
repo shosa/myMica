@@ -81,7 +81,7 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
                     <div class="mb-4">
                         <input type="text" id="searchClient" class="form-control" placeholder="Cerca cliente...">
                     </div>
-
+                    <?php include(BASE_PATH . "/functions/notification/notification.php"); ?>
                     <!-- Tabella Clienti -->
                     <div class="card mb-4 shadow-sm">
                         <div class="card-header border-success">

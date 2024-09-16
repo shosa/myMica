@@ -1,4 +1,4 @@
-const CACHE_NAME = 'app-mymica-v1.120';
+const CACHE_NAME = 'app-mymica-v1.130';
 const urlsToCache = [
   '/css/sb-admin-2.css',
   '/vendor/fontawesome-free/css/all.min.css',
