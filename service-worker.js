@@ -1,13 +1,11 @@
-const CACHE_NAME = 'app-mymica-v1.6';
+const CACHE_NAME = 'app-mymica-v1.120';
 const urlsToCache = [
-  '/',
   '/css/sb-admin-2.css',
   '/vendor/fontawesome-free/css/all.min.css',
   '/vendor/datatables/dataTables.bootstrap4.min.css',
   '/img/logo.png',
   '/img/logoMini.png',
   '/img/roundLogo.png'
-    // Aggiungi altre risorse che vuoi cacheare
 ];
 
 // Installa il service worker e cachea le risorse

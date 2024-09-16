@@ -55,14 +55,14 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                 <div class="container-fluid">
                     <?php require_once BASE_PATH . "/utils/alerts.php"; ?>
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+                        <h1 class="h3 mb-0 text-gray-800"  >Dashboard</h1>
                     </div>
 
                     <!-- INIZIO ROW CARDS -->
                     <div class="row">
                         <!-- Card Appuntamenti di Oggi -->
                         <div class="col-md-6">
-                            <div class="card mb-4">
+                            <div class="card mb-4  shadow-sm">
                                 <div class="card-header">
                                     <h5 class="m-0 font-weight-bold text-indigo">Appuntamenti di Oggi</h5>
                                 </div>
@@ -73,7 +73,7 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                                     foreach ($appuntamentiOggi as $appuntamento) {
                                         $ora = date('H:i', strtotime($appuntamento['data_appuntamento']));
                                         $cliente = $appuntamento['cliente_nome'];
-                                        $chiave = "$ora - $cliente";
+                                        $chiave = "<span class='badge badge-indigo'>$ora </span> - $cliente";
 
                                         if (!isset($appuntamentiGiorno[$chiave])) {
                                             $appuntamentiGiorno[$chiave] = [];
@@ -87,7 +87,7 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                                         <ul class="list-group">
                                             <?php foreach ($appuntamentiGiorno as $chiave => $servizi): ?>
                                                 <li class="list-group-item">
-                                                    <strong><?php echo htmlspecialchars($chiave); ?>:</strong>
+                                                    <strong><?php echo $chiave; ?>:</strong>
                                                     <ul>
                                                         <?php foreach ($servizi as $servizio): ?>
                                                             <li><?php echo htmlspecialchars($servizio); ?></li>
@@ -105,9 +105,9 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
 
                         <!-- Card Appuntamenti della Settimana Prossima -->
                         <div class="col-md-6">
-                            <div class="card mb-4">
+                            <div class="card mb-4 shadow-sm">
                                 <div class="card-header">
-                                    <h5 class="m-0 font-weight-bold text-orange">Appuntamenti nei prossimi 7 GG</h5>
+                                    <h5 class="m-0 font-weight-bold text-orange">Appuntamenti prossimi 7 GG</h5>
                                 </div>
                                 <div class="card-body">
                                     <?php
@@ -117,7 +117,7 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                                         $ora = date('H:i', strtotime($appuntamento['data_appuntamento']));
                                         $data = date('d-m', strtotime($appuntamento['data_appuntamento']));
                                         $cliente = $appuntamento['cliente_nome'];
-                                        $chiave = "<span class='badge badge-orange'>$data</span> $ora - $cliente";
+                                        $chiave = "<span class='badge badge-orange'>$data</span> <span class='badge badge-dark'>$ora</span> - $cliente";
 
                                         if (!isset($appuntamentiSettimana[$chiave])) {
                                             $appuntamentiSettimana[$chiave] = [];
@@ -152,7 +152,7 @@ $appuntamentiSettimanaProssima = $stmtSettimanaProssima->fetchAll(PDO::FETCH_ASS
                     <div class="mx-auto text-center">
                         <img src="<?php echo BASE_URL ?>/img/logoMini.png" alt="Logo" style="max-height: 100px;">
                     </div>
-                    
+
                 </div>
             </div>
             <?php include(BASE_PATH . "/components/footer.php"); ?>

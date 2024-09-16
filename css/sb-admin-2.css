@@ -5516,6 +5516,11 @@ a.badge:focus {
   background-color: var(--orange);
 }
 
+.badge-indigo {
+  color: #fff;
+  background-color: var(--indigo);
+}
+
 a.badge-primary:hover,
 a.badge-primary:focus {
   color: #fff;
@@ -7291,6 +7296,9 @@ button.bg-dark:focus {
 
 .border-success {
   border-color: #1cc88a !important;
+}
+.border-orange {
+  border-color: var(--orange) !important;
 }
 
 .border-info {

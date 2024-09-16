@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
         <div class="sidebar-brand-icon">
             <img src="<?php echo BASE_URL ?>/img/roundLogo.png" alt="" width="40" height="40">
         </div>
-      
+
     </a>
 
     <!-- DIVISORE -->
@@ -65,6 +65,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
         border-width: 6px !important;
 
     }
+
+    .nav-item i {
+        font-size: 1.5rem;
+    }
+
+    .nav-item .active {
+        background-color: #9353fc !important;
+        color: white !important;
+        border-left: solid 6pt white;
+        border-radius: 0 10px 10px 0;
+        width: 95% !important;
+    }
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -102,14 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
             if (navLinks.hasOwnProperty(url) && currentUrl.includes(url)) {
                 var navItem = document.getElementById(navLinks[url]);
                 if (navItem) {
-                    navItem.classList.add('border-left');
-                    navItem.classList.add('border-white');
-                    navItem.classList.add("border-width-6");
-
-
-
-
-
+                    navItem.classList.add('active');
                     var parentNavLink = navItem.closest('.nav-item').querySelector('.nav-link');
                     if (parentNavLink) {
                         parentNavLink.classList.remove('collapsed');

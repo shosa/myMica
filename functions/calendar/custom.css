@@ -66,6 +66,11 @@
     color: white !important;
 }
 
+.appuntamentoFatto:hover {
+    background-color: var(--success);
+    color: white !important;
+}
+
 .annotazione:hover {
     background-color: var(--orange);
     color: white !important;

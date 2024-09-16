@@ -101,6 +101,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="appointmentDetailsModalLabel">APPUNTAMENTO <span
                         class="h4 text-dark font-weight-bold ml-2" id="detail_id_appuntamento"></span> </h5>
+                <input type="hidden" id="detail_id_cliente">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -115,13 +116,15 @@
                 <hr>
                 <div class="mt-3 align-items-center text-center">
                     <a id="whatsappLink"
-                        class="btn btn-light border border-success text-success btn-lg shadow btn-circle mr-2"
+                        class="btn btn-white border border-success text-success btn-lg shadow-sm btn-circle mr-2"
                         target="_blank"><i class="fa-brands fa-whatsapp "></i></a>
-                    <button class="btn btn-light border-warning text-warning btn-lg shadow btn-circle mr-2 "
+                    <button class="btn btn-white border-warning text-warning btn-lg shadow-sm btn-circle mr-2 "
                         id="editAppointmentBtn"><i class="fal fa-pencil-alt"></i></button>
-                    <button class="btn btn-light border-danger text-danger btn-lg shadow btn-circle mr-4"
+                    <button class="btn btn-light border-primary text-primary btn-lg shadow-sm btn-circle mr-2"
+                        id="btnBill"><i class="fal fa-euro-sign"></i></button>
+                    <button class="btn btn-white border-danger text-danger btn-lg shadow-sm btn-circle mr-2"
                         id="deleteAppointmentBtn"><i class="fal fa-trash"></i></button>
-                    <button class="btn btn-success btn-lg shadow btn-circle ml-4" id="completeAppointmentBtn"><i
+                    <button class="btn btn-success btn-lg shadow-sm btn-circle ml-2" id="completeAppointmentBtn"><i
                             class="fal fa-check"></i></button>
                     <!-- Pulsante Completa -->
                 </div>
@@ -168,13 +171,13 @@
 <!-- Modale modifica annotazione -->
 <div class="modal fade" id="annotationDetailsModal" tabindex="-1" aria-labelledby="annotationDetailsModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered ">
+        <div class="modal-content border-orange">
             <span class="h6 font-weight-bold text-white p-1 text-center bg-orange "
                 style="widht:100%;">ANNOTAZIONE</span>
             <div class="modal-header">
                 <h5 class="modal-title" id="annotationDetailsModalLabel">ANNOTAZIONE </h5><span
-                class="h4 text-dark font-weight-bold ml-2" id="detail_id_annotazione"></span>
+                    class="h4 text-dark font-weight-bold ml-2" id="detail_id_annotazione"></span>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Chiudi">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -197,10 +200,10 @@
             </div>
             <div class="modal-footer">
                 <button id="deleteAnnotationBtn" type="button"
-                    class="btn btn-light border-danger text-danger btn-lg shadow btn-circle mr-4"><i
+                    class="btn btn-white border-danger text-danger btn-lg shadow-sm btn-circle mr-4"><i
                         class="fal fa-trash"></i></button>
                 <button id="editAnnotationBtn" type="button"
-                    class="btn btn-success border-success text-white btn-lg shadow btn-circle mr-4"><i
+                    class="btn btn-success border-success text-white btn-lg shadow-sm btn-circle mr-4"><i
                         class="fal fa-save"></i></button>
             </div>
         </div>

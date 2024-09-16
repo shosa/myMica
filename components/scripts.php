@@ -8,10 +8,10 @@
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('<?php echo BASE_URL; ?>/service-worker.js')
                 .then((registration) => {
-                    console.log('Service Worker registered with scope:', registration.scope);
+                    console.log('Service Worker registrato:', registration.scope);
                 })
                 .catch((error) => {
-                    console.error('Service Worker registration failed:', error);
+                    console.error('Registrazione Service Worker fallita:', error);
                 });
         });
     }

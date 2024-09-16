@@ -81,9 +81,9 @@ foreach ($risultatiClienti as $cliente) {
             <div id="content">
                 <?php include(BASE_PATH . "/components/topbar.php"); ?>
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Gestione Servizi</h1>
+                    <h1 class="h3 mb-4 text-gray-800" >Gestione Servizi</h1>
                     <!-- Tabella Servizi -->
-                    <div class="card mb-4">
+                    <div class="card mb-4 shadow-sm">
                         <div class="card-header border-indigo">
                             <span class="text-indigo font-weight-bold">SERVIZI</span>
                             <button class="btn btn-indigo floating-btn" data-toggle="modal"
@@ -259,7 +259,8 @@ foreach ($risultatiClienti as $cliente) {
                         <form action="services.php" method="POST">
                             <input type="hidden" name="id_servizio" id="delete_id_servizio">
                             <p>Sei sicuro di voler eliminare questo servizio?</p>
-                            <p class="text-danger"><b>Se presenti appuntamenti per questo servizio verranno cancellati anche essi.</b></p>
+                            <p class="text-danger"><b>Se presenti appuntamenti per questo servizio verranno cancellati
+                                    anche essi.</b></p>
                             <button type="submit" name="delete_servizio"
                                 class="btn btn-danger btn-block">Elimina</button>
                         </form>

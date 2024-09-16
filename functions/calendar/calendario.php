@@ -79,7 +79,7 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
         $badgeOggi = $oggi->format('Y-m-d') === $giorno->format('Y-m-d') ? "<span class='badge badge-success float-right'>OGGI</span>" : '';
 
         echo '<div class="col">';
-        echo '<div class="card mt-2 ' . htmlspecialchars(trim($class)) . '">';
+        echo '<div class="card mt-2 shadow-sm ' . htmlspecialchars(trim($class)) . '">';
         echo '<div class="card-header ' . htmlspecialchars(trim($color)) . '">';
         echo '<span class="card-title font-weight-bold">' . strtoupper($formatterCard->format($giorno)) . ' ' . $badgeOggi . '</span>';
         echo '</div>';
@@ -160,12 +160,13 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
                 echo '<ul class="list-group" style="border-radius: 0 0 5px 5px !important;">';
 
                 foreach ($evento['listaAppuntamenti'] as $appuntamento) {
-                    $icona = $appuntamento['completato'] == 0 ? '<span class="icon"><i class="fal fa-clock text-primary a"></i></span>' : '<span class="icon"><i class="fal fa-check text-success"></i></span>';
-                    $coloreAppuntamento = $appuntamento['completato'] == 0 ? 'font-weight-normal text-primary' : 'font-weight-normal text-grey';
+                    $icona = $appuntamento['completato'] == 0 ? '<span class="icon" ><i class="fal fa-clock a"></i></span>' : '<span class="icon"><i class="fal fa-check "></i></span>';
+                    $coloreAppuntamento = $appuntamento['completato'] == 0 ? 'font-weight-normal text-primary' : 'font-weight-normal text-success';
+                    $hoverAppuntamento = $appuntamento['completato'] == 0 ? 'appuntamento' : 'appuntamentoFatto';
                     $nome_servizio = htmlspecialchars($appuntamento['nome_servizio']);
                     $tempo_servizio = htmlspecialchars($appuntamento['tempo_servizio']);
                     $id_appuntamento = $appuntamento['id_appuntamento'];
-                    echo "<li class='appuntamento list-group-item border-0 " . $coloreAppuntamento . " appointment-item' data-id='$id_appuntamento' data-cliente='$cliente' data-ora='$ora' data-servizio='$nome_servizio'>" . $icona . " <span class='appointment-text'>$nome_servizio <i>($tempo_servizio min)</i></span></li>";
+                    echo "<li class='" . $hoverAppuntamento . " list-group-item border-0 " . $coloreAppuntamento . " appointment-item' data-id='$id_appuntamento' id='$id_appuntamento' data-cliente='$cliente' data-ora='$ora' data-servizio='$nome_servizio'>" . $icona . " <span class='appointment-text'>$nome_servizio <i>($tempo_servizio min)</i></span></li>";
                 }
 
                 echo "</ul>";
@@ -209,7 +210,7 @@ $annotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
             <div id="content"><?php include(BASE_PATH . "/components/topbar.php"); ?>
                 <div class="container-fluid"><?php require_once BASE_PATH . "/utils/alerts.php"; ?>
                     <div class="align-items-center justify-content-between">
-                        <div class="card mb-4">
+                        <div class="card mb-4 shadow-sm">
                             <div class="align-items-center justify-content-between card-body d-flex"><a
                                     class="btn btn-indigo btn-circle"
                                     href="calendario.php?anno=<?php echo $anno; ?>&mese=<?php echo $mese; ?>&giorno=<?php echo $giorno; ?>&action=prev"><i
@@ -315,12 +316,12 @@ $annotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
                         document.getElementById('detail_stato').classList.add(data.completato == 1 ? "bg-success" : "bg-primary");
                         document.getElementById('modaleDettagli').classList.remove(data.completato == 1 ? "border-primary" : "border-success");
                         document.getElementById('modaleDettagli').classList.add(data.completato == 1 ? "border-success" : "border-primary");
-
+                        document.getElementById('detail_id_cliente').value = data.id_cliente; // Salva l'id_cliente
 
                         const dataAppuntamento = new Date(data.data_appuntamento);
                         const dataFormat = `${dataAppuntamento.getDate()}/${dataAppuntamento.getMonth() + 1}/${dataAppuntamento.getFullYear()}`;
                         const oraFormat = dataAppuntamento.toTimeString().substring(0, 5);
-
+                        const dataOraOriginale = data.data_appuntamento;
                         document.getElementById('detail_data_appuntamento').textContent = dataFormat;
                         document.getElementById('detail_ora_appuntamento').textContent = oraFormat;
 
@@ -345,6 +346,7 @@ $annotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
                             document.getElementById('whatsappLink').classList.remove("disabled");
                             document.getElementById('whatsappLink').href = whatsappLink;
                         }
+                        document.getElementById('btnBill').dataset.dataOra = dataOraOriginale;
                     }
 
                     // Gestione della modifica dell'appuntamento
@@ -511,6 +513,68 @@ $annotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
                                 .catch(error => console.error('Errore:', error));
                         }
                     });
+                    document.getElementById('btnBill').addEventListener('click', function () {
+                        const idCliente = document.getElementById('detail_id_cliente').value;
+                        const dataOraOriginale = this.dataset.dataOra; // Ottieni la data originale memorizzata
+
+                        if (!idCliente || !dataOraOriginale) {
+                            alert('Errore: Cliente o data non disponibile.');
+                            return;
+                        }
+
+                        // Effettua una richiesta per ottenere il totale dei costi
+                        fetch(`getTotalCost?cliente=${idCliente}&dataora=${encodeURIComponent(dataOraOriginale)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Creare il contenuto del popup in formato scontrino
+                                    let scontrino = '<div style="text-align: left; font-family: Arial, sans-serif;">'; // Aggiungi un div con allineamento a sinistra
+                                    data.servizi.forEach(servizio => {
+                                        const costo = parseFloat(servizio.costo_servizio).toFixed(2); // Converti la stringa in numero e formatta
+                                        scontrino += `
+                        <div style="display: flex; justify-content: space-between;">
+                            <span class="text-indigo">${servizio.nome_servizio}</span>
+                            <span>${costo}€</span>
+                        </div>`;
+                                    });
+
+                                    scontrino += '<hr>'; // Usando <hr> per la linea divisoria
+                                    scontrino += `
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>TOTALE</span>
+                        <span class="font-weight-bold">${parseFloat(data.totale).toFixed(2)}€</span>
+                    </div>`;
+                                    scontrino += '</div>'; // Chiudi il div
+
+                                    // Mostra il popup con SweetAlert
+                                    Swal.fire({
+                                        title: 'Dettaglio Servizi',
+                                        html: scontrino,
+                                        confirmButtonText: 'OK'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Errore',
+                                        text: 'Impossibile calcolare il totale.',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Errore:', error);
+                                Swal.fire({
+                                    title: 'Errore',
+                                    text: 'Si è verificato un errore durante il calcolo del totale.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            });
+                    });
+
+
+
+
                 });
 
             </script>

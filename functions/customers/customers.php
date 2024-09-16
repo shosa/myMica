@@ -75,7 +75,7 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
             <div id="content">
                 <?php include(BASE_PATH . "/components/topbar.php"); ?>
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800">Gestione Clienti</h1>
+                    <h1 class="h3 mb-4 text-gray-800" >Gestione Clienti</h1>
 
                     <!-- Campo di ricerca -->
                     <div class="mb-4">
@@ -83,7 +83,7 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
                     </div>
 
                     <!-- Tabella Clienti -->
-                    <div class="card mb-4">
+                    <div class="card mb-4 shadow-sm">
                         <div class="card-header border-success">
                             <span class="text-success font-weight-bold">RUBRICA</span>
                             <button class="btn btn-success floating-btn" data-toggle="modal"
@@ -130,6 +130,10 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
                                                             data-telefono="<?php echo htmlspecialchars($cliente['numero_telefono']); ?>"><i
                                                                 class="fal fa-pencil"></i> MODIFICA</a>
                                                         <hr>
+                                                        <a class="dropdown-item history-btn h6" href="#"
+                                                            data-id="<?php echo $cliente['id_cliente']; ?>"><i
+                                                                class="fal fa-history"></i> CRONOLOGIA</a>
+                                                        <hr>
                                                         <a class="dropdown-item delete-btn h6" href="#" data-toggle="modal"
                                                             data-target="#deleteClienteModal"
                                                             data-id="<?php echo $cliente['id_cliente']; ?>"><i
@@ -155,7 +159,7 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
                     <span class="h6 font-weight-bold text-white p-1 text-center bg-success "
                         style="widht:100%;">CLIENTE</span>
                     <div class="modal-header">
-                        <h5 class="modal-title" id="appuntamentiClienteModalLabel">Appuntamenti del Cliente</h5>
+                        <h5 class="modal-title" id="appuntamentiClienteModalLabel">In Programma</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -250,7 +254,8 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
                         <form action="customers.php" method="POST">
                             <input type="hidden" name="id_cliente" id="delete_id_cliente">
                             <p>Sei sicuro di voler eliminare questo cliente? </p>
-                            <p class="text-danger"><b>Se presenti appuntamenti per questo cliente verranno cancellati anche essi.</b></p>
+                            <p class="text-danger"><b>Se presenti appuntamenti per questo cliente verranno cancellati
+                                    anche essi.</b></p>
                             <button type="submit" name="delete_cliente"
                                 class="btn btn-danger btn-block">Elimina</button>
                         </form>
