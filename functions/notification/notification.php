@@ -16,7 +16,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 600px; overflow-y: auto;">
                 <div id="promemoriaList"></div>
                 <hr>
                 <button class="btn btn-warning btn-block" id="addPromemoriaBtn">NUOVO</button>
@@ -27,9 +27,10 @@
 
 <!-- Modale per aggiungere un nuovo promemoria -->
 <div class="modal fade" id="addPromemoriaModal" tabindex="-1" aria-labelledby="addPromemoriaModalLabel"
-    aria-hidden="true">
+    aria-hidden="true" style="background: rgba(0, 0, 0, 0.35) !important;">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content border-info">
+            <span class="h6 font-weight-bold text-white p-1 text-center bg-info" style="width:100%;">NUOVO</span>
             <div class="modal-header">
                 <h5 class="modal-title text-dark" id="addPromemoriaModalLabel">PROMEMORIA</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -46,7 +47,7 @@
                         <label for="promemoriaNota">Testo</label>
                         <textarea class="form-control" id="promemoriaNota" rows="3" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-success btn-block">Salva</button>
+                    <button type="submit" class="btn btn-info btn-block">Salva</button>
                 </form>
             </div>
         </div>
@@ -98,7 +99,7 @@
                             <p>${formattedNota}</p>
                         </div>
                     `;
-                });
+                        });
 
                         // Aggiungi l'evento per il pulsante di eliminazione
                         document.querySelectorAll('.delete-btn').forEach(button => {
