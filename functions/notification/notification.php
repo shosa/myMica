@@ -6,17 +6,20 @@
 
 <!-- Modale per visualizzare e aggiungere promemoria -->
 <div class="modal fade" id="promemoriaModal" tabindex="-1" aria-labelledby="promemoriaModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content border-warning">
             <span class="h6 font-weight-bold text-white p-1 text-center bg-warning"
                 style="width:100%;">PROMEMORIA</span>
             <div class="modal-header">
-                <h5 class="modal-title text-dark" id="promemoriaModalLabel">PROMEMORIA</h5>
+                <div>
+                    <h5 class="modal-title text-dark" id="promemoriaModalLabel">PROMEMORIA</h5>
+                    <span class="text-muted" style="font-size: 0.9rem;"><i>Premi sul titolo per espandere</i></span>
+                </div>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="max-height: 600px; overflow-y: auto;">
+            <div class="modal-body">
                 <div id="promemoriaList"></div>
                 <hr>
                 <button class="btn btn-warning btn-block" id="addPromemoriaBtn">NUOVO</button>
@@ -94,50 +97,79 @@
                             const formattedNota = item.nota.replace(/\n/g, '<br>');
                             promemoriaList.innerHTML += `
                         <div class="alert alert-warning promemoria-item" role="alert">
-                            <button class="delete-btn" data-id="${item.id_promemoria}">&times;</button>
-                            <h4 class="alert-heading">${item.titolo}</h4>
-                            <p>${formattedNota}</p>
+                            <button class="delete-btn text-warning font-weight-bold" data-id="${item.id_promemoria}">&times;</button>
+                            <h4 class="alert-heading promemoria-title font-weight-bold">${item.titolo}</h4>
+                            <div class="promemoria-details" style="display: none;">
+                                <p>${formattedNota}</p>
+                            </div>
                         </div>
                     `;
+                        });
+
+                        // Gestione dell'espansione e compressione
+                        document.querySelectorAll('.promemoria-title').forEach(title => {
+                            title.addEventListener('click', function () {
+                                const details = this.nextElementSibling; // Seleziona il div "promemoria-details"
+                                if (details.style.display === 'none' || details.style.display === '') {
+                                    details.style.display = 'block'; // Mostra il dettaglio
+                                } else {
+                                    details.style.display = 'none'; // Nasconde il dettaglio
+                                }
+                            });
                         });
 
                         // Aggiungi l'evento per il pulsante di eliminazione
                         document.querySelectorAll('.delete-btn').forEach(button => {
                             button.addEventListener('click', function () {
                                 const idPromemoria = this.dataset.id;
-                                fetch('<?php BASE_PATH ?>/functions/notification/deletePromemoria', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded'
-                                    },
-                                    body: new URLSearchParams({
-                                        id_promemoria: idPromemoria
-                                    })
-                                })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data.success) {
-                                            Swal.fire({
-                                                title: 'Successo',
-                                                text: 'Promemoria eliminato con successo.',
-                                                icon: 'success',
-                                                confirmButtonText: 'OK'
-                                            }).then(() => {
-                                                updateNotificationStatus(); // Ricarica lo stato delle notifiche
-                                                loadPromemoria(); // Ricarica i promemoria
+
+                                // Mostra un prompt di conferma prima di eliminare
+                                Swal.fire({
+                                    title: 'Eliminare?',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#d33',
+                                    cancelButtonColor: '#c3c3c3',
+                                    confirmButtonText: 'Elimina',
+                                    cancelButtonText: 'Annulla'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Procedi con l'eliminazione
+                                        fetch('<?php BASE_PATH ?>/functions/notification/deletePromemoria', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/x-www-form-urlencoded'
+                                            },
+                                            body: new URLSearchParams({
+                                                id_promemoria: idPromemoria
+                                            })
+                                        })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    Swal.fire({
+                                                        title: 'Successo',
+                                                        text: 'Promemoria eliminato con successo.',
+                                                        icon: 'success',
+                                                        confirmButtonText: 'OK'
+                                                    }).then(() => {
+                                                        updateNotificationStatus(); // Ricarica lo stato delle notifiche
+                                                        loadPromemoria(); // Ricarica i promemoria
+                                                    });
+                                                } else {
+                                                    Swal.fire({
+                                                        title: 'Errore',
+                                                        text: 'Impossibile eliminare il promemoria.',
+                                                        icon: 'error',
+                                                        confirmButtonText: 'OK'
+                                                    });
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Errore:', error);
                                             });
-                                        } else {
-                                            Swal.fire({
-                                                title: 'Errore',
-                                                text: 'Impossibile eliminare il promemoria.',
-                                                icon: 'error',
-                                                confirmButtonText: 'OK'
-                                            });
-                                        }
-                                    })
-                                    .catch(error => {
-                                        console.error('Errore:', error);
-                                    });
+                                    }
+                                });
                             });
                         });
                     } else {
@@ -153,6 +185,7 @@
                     console.error('Errore:', error);
                 });
         }
+
 
         notificationBtn.addEventListener('click', function () {
             loadPromemoria();
