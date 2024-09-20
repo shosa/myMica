@@ -75,7 +75,7 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
             <div id="content">
                 <?php include(BASE_PATH . "/components/topbar.php"); ?>
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800" >Gestione Clienti</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Gestione Clienti</h1>
 
                     <!-- Campo di ricerca -->
                     <div class="mb-4">
@@ -130,8 +130,8 @@ foreach ($risultatiAppuntamenti as $appuntamento) {
                                                             data-telefono="<?php echo htmlspecialchars($cliente['numero_telefono']); ?>"><i
                                                                 class="fal fa-pencil"></i> MODIFICA</a>
                                                         <hr>
-                                                        <a class="dropdown-item history-btn h6" href="#"
-                                                            data-id="<?php echo $cliente['id_cliente']; ?>"><i
+                                                        <a class="dropdown-item history-btn h6"
+                                                            href="userStory.php?id=<?php echo $cliente['id_cliente']; ?>"><i
                                                                 class="fal fa-history"></i> CRONOLOGIA</a>
                                                         <hr>
                                                         <a class="dropdown-item delete-btn h6" href="#" data-toggle="modal"

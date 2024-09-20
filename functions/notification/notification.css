@@ -16,7 +16,7 @@
 
 #notificationBtn.active {
     background-color: var(--yellow);
-    
+    z-index: 999px !important;
     display: block;
 }
 
