@@ -86,7 +86,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('modaleDettagli').classList.remove(data.completato == 1 ? "border-primary" : "border-success");
         document.getElementById('modaleDettagli').classList.add(data.completato == 1 ? "border-success" : "border-primary");
         document.getElementById('detail_id_cliente').value = data.id_cliente; // Salva l'id_cliente
-
+        document.getElementById('detail_badgeColor').value = data.badge_color;
+        document.getElementById('detail_badgeText').value = data.badge_text;
         const dataAppuntamento = new Date(data.data_appuntamento);
         const dataFormat = `${dataAppuntamento.getDate()}/${dataAppuntamento.getMonth() + 1}/${dataAppuntamento.getFullYear()}`;
         const oraFormat = dataAppuntamento.toTimeString().substring(0, 5);
@@ -202,6 +203,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
     // Apre il modale quando si clicca su una annotazione
     document.querySelectorAll('.annotation-item').forEach(item => {
@@ -261,6 +265,40 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error('Errore:', error));
     });
 
+    document.getElementById('saveBadgeBtn').addEventListener('click', function() {
+        var badgeColor = document.getElementById('detail_badgeColor').value;
+        var badgeText = document.getElementById('detail_badgeText').value;
+        var appointmentId = document.getElementById('detail_id_appuntamento').textContent.trim();
+    
+        // Rimuovi il simbolo # se presente
+        if (appointmentId.startsWith('#')) {
+            appointmentId = appointmentId.substring(1);
+        }
+    
+        console.log("Badge Color:", badgeColor);
+        console.log("Badge Text:", badgeText);
+        console.log("Appointment ID:", appointmentId);
+    
+        var postData = "appointment_id=" + encodeURIComponent(appointmentId) +
+                       "&badge_color=" + encodeURIComponent(badgeColor) +
+                       "&badge_text=" + encodeURIComponent(badgeText);
+    
+        console.log("Post Data:", postData);
+    
+        fetch('saveBadge.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: postData,
+        })
+        .then(response => response.text())
+        .then(data => {
+            location.reload();
+            
+        })
+        .catch(error => console.error('Error:', error));
+    });
     // Gestione della cancellazione dell'annotazione
     document.getElementById('deleteAnnotationBtn').addEventListener('click', function () {
         const idAnnotazione = this.dataset.idAnnotazione;
@@ -340,7 +378,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
     });
-
 
 
 

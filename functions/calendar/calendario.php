@@ -38,9 +38,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->execute([$id_cliente, $id_servizio, $data_completa, $tempo_servizio]);
     }
 
-    $_SESSION["success"] = "Appuntamento con più servizi inserito!";
+    $_SESSION["success"] = "Appuntamento creato.";
     header("Location: calendario.php?anno=$anno&mese=$mese&giorno=$giorno");
     exit;
+}
+function getTextColor($hexColor)
+{
+    // Rimuovi il simbolo '#' se presente
+    $hexColor = ltrim($hexColor, '#');
+
+    // Converte il colore esadecimale in RGB
+    $r = hexdec(substr($hexColor, 0, 2));
+    $g = hexdec(substr($hexColor, 2, 2));
+    $b = hexdec(substr($hexColor, 4, 2));
+
+    // Calcola la luminosità
+    $luminosity = (($r * 0.299) + ($g * 0.587) + ($b * 0.114));
+
+    // Restituisce il colore del testo in base alla luminosità
+    return ($luminosity > 186) ? 'black' : 'white';
 }
 function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni)
 {
@@ -134,6 +150,7 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
         foreach ($eventi as $evento) {
             if ($evento['tipo'] === 'appuntamento') {
                 $cliente = $evento['cliente'];
+
                 $ora = $evento['ora'];
                 $tempoTotale = $evento['tempoTotale'];
                 $stato = '';
@@ -167,6 +184,12 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
                     $tempo_servizio = htmlspecialchars($appuntamento['tempo_servizio']);
                     $id_appuntamento = $appuntamento['id_appuntamento'];
                     echo "<li class='" . $hoverAppuntamento . " list-group-item border-0 " . $coloreAppuntamento . " appointment-item' data-id='$id_appuntamento' id='$id_appuntamento' data-cliente='$cliente' data-ora='$ora' data-servizio='$nome_servizio'>" . $icona . " <span class='appointment-text'>$nome_servizio <i>($tempo_servizio min)</i></span></li>";
+
+                    if (isset($appuntamento['badge_text'])) {
+                        $badgeColor = htmlspecialchars($appuntamento['badge_color']);
+                        $textColor = getTextColor($badgeColor);
+                        echo "<span class='badge m-1' style='background-color: $badgeColor; color: $textColor;'>" . htmlspecialchars($appuntamento['badge_text']) . "</span>";
+                    }
                 }
 
                 echo "</ul>";
@@ -196,7 +219,7 @@ function generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni
 $inizio_settimana = (new DateTime("$anno-$mese-$giorno"))->modify('monday this week')->format('Y-m-d');
 $fine_settimana = (new DateTime("$anno-$mese-$giorno"))->modify('sunday this week')->format('Y-m-d');
 $numero_settimana = (new DateTime("$anno-$mese-$giorno"))->format('W');
-$stmt = $pdo->prepare("SELECT a.id_appuntamento, c.nome_cliente, s.nome_servizio, a.data_appuntamento, a.tempo_servizio , a.completato\n                       FROM appuntamenti a\n                       JOIN clienti c ON a.id_cliente = c.id_cliente\n                       JOIN servizi s ON a.id_servizio = s.id_servizio\n                       WHERE DATE(a.data_appuntamento) BETWEEN ? AND ?\n                       ORDER BY a.data_appuntamento ASC");
+$stmt = $pdo->prepare("SELECT a.id_appuntamento, a.badge_color, a.badge_text, c.nome_cliente, s.nome_servizio, a.data_appuntamento, a.tempo_servizio , a.completato\n                       FROM appuntamenti a\n                       JOIN clienti c ON a.id_cliente = c.id_cliente\n                       JOIN servizi s ON a.id_servizio = s.id_servizio\n                       WHERE DATE(a.data_appuntamento) BETWEEN ? AND ?\n                       ORDER BY a.data_appuntamento ASC");
 $stmt->execute([$inizio_settimana, $fine_settimana]);
 $appuntamenti = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $stmt = $pdo->prepare("SELECT *\n                       FROM annotazioni \n                         WHERE DATE(data) BETWEEN ? AND ?\n                       ORDER BY data ASC");

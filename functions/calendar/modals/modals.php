@@ -97,41 +97,78 @@
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" id="modaleDettagli">
-            <span class="h6 font-weight-bold text-white p-1 text-center " style="widht:100%;" id="detail_stato"></span>
+            <!-- Stato appuntamento -->
+            <span class="h6 font-weight-bold text-white p-2 bg-primary d-block text-center" id="detail_stato"></span>
+
+            <!-- Header del modale -->
             <div class="modal-header">
-                <h5 class="modal-title" id="appointmentDetailsModalLabel">APPUNTAMENTO <span
-                        class="h4 text-dark font-weight-bold ml-2" id="detail_id_appuntamento"></span> </h5>
+                <h5 class="modal-title" id="appointmentDetailsModalLabel">
+                    <span class="h4 text-dark font-weight-bold ml-2" id="detail_id_appuntamento"></span> - <span
+                        class="h4 text-dark font-weight-bold ml-2" id="detail_data_appuntamento"></span>
+                </h5>
                 <input type="hidden" id="detail_id_cliente">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <p><span class="text-dark h3 font-weight-bold" id="detail_nome_cliente"></span></p>
-                <p><i><span class="text-dark h4" id="detail_nome_servizio"></span></i></p>
-                <p><strong>DATA: </strong> <span id="detail_data_appuntamento"></span></p>
-                <p><strong>ORA: </strong> <span class="mr-4" id="detail_ora_appuntamento"></span>
-                </p>
 
+            <!-- Corpo del modale -->
+            <div class="modal-body">
+                <!-- Nome Cliente -->
+                <p class="mb-2"><span class="text-dark h3 font-weight-bold" id="detail_nome_cliente"></span></p>
+
+                <!-- Nome Servizio -->
+                <p class="mb-3"><i><span class="text-dark h4" id="detail_nome_servizio"></span></i></p>
+
+                <!-- Data e ora dell'appuntamento -->
+                <div class="d-flex justify-content-between mb-3 align-items-center">
+                    <!-- Form per il badge -->
+                    <div class="d-flex align-items-center">
+
+                        <!-- Select personalizzato per i colori -->
+                        <input type="color" id="detail_badgeColor" class="form-control mr-2 p-0 border-0"
+                            style="width:4rem">
+
+                        <!-- Campo di testo per il badge -->
+                        <input type="text" id="detail_badgeText" class="form-control" maxlength="10"
+                            placeholder="Testo">
+
+                        <!-- Pulsante salva -->
+                        <button id="saveBadgeBtn" class="btn btn-lg text-success"><i class="fal fa-save"></i></button>
+                    </div>
+
+                    <!-- Ora allineata a destra, grigio chiaro e più grande -->
+                    <p class="mb-1 ml-auto" style="font-size: 2rem; color: lightgray; font-weight: bold;">
+                        <span id="detail_ora_appuntamento"></span>
+                    </p>
+                </div>
                 <hr>
-                <div class="mt-3 align-items-center text-center">
-                    <a id="whatsappLink"
-                        class="btn btn-white border border-success text-success btn-lg shadow-sm btn-circle mr-2"
-                        target="_blank"><i class="fa-brands fa-whatsapp "></i></a>
-                    <button class="btn btn-white border-warning text-warning btn-lg shadow-sm btn-circle mr-2 "
-                        id="editAppointmentBtn"><i class="fal fa-pencil-alt"></i></button>
-                    <button class="btn btn-light border-primary text-primary btn-lg shadow-sm btn-circle mr-2"
-                        id="btnBill"><i class="fal fa-euro-sign"></i></button>
-                    <button class="btn btn-white border-danger text-danger btn-lg shadow-sm btn-circle mr-2"
-                        id="deleteAppointmentBtn"><i class="fal fa-trash"></i></button>
-                    <button class="btn btn-success btn-lg shadow-sm btn-circle ml-2" id="completeAppointmentBtn"><i
-                            class="fal fa-check"></i></button>
-                    <!-- Pulsante Completa -->
+
+                <!-- Pulsanti di azione -->
+                <div class="d-flex justify-content-center align-items-center mt-3">
+                    <a id="whatsappLink" class="btn btn-white text-success btn-lg shadow-sm btn-circle mr-2"
+                        target="_blank">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                    <button class="btn btn-white text-warning btn-lg shadow-sm btn-circle mr-2" id="editAppointmentBtn">
+                        <i class="fal fa-pencil-alt"></i>
+                    </button>
+                    <button class="btn btn-white text-primary btn-lg shadow-sm btn-circle mr-2" id="btnBill">
+                        <i class="fal fa-euro-sign"></i>
+                    </button>
+                    <button class="btn btn-white text-danger btn-lg shadow-sm btn-circle mr-2"
+                        id="deleteAppointmentBtn">
+                        <i class="fal fa-trash"></i>
+                    </button>
+                    <button class="btn btn-success btn-lg shadow-sm btn-circle ml-2" id="completeAppointmentBtn">
+                        <i class="fal fa-check"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Modale nuova annotazione -->
 <div class="modal fade" id="newAnnotationModal" tabindex="-1" role="dialog" aria-labelledby="newAnnotationModalLabel"
@@ -200,10 +237,10 @@
             </div>
             <div class="modal-footer">
                 <button id="deleteAnnotationBtn" type="button"
-                    class="btn btn-white border-danger text-danger btn-lg shadow-sm btn-circle mr-4"><i
+                    class="btn btn-white text-danger btn-lg shadow-sm btn-circle mr-4"><i
                         class="fal fa-trash"></i></button>
                 <button id="editAnnotationBtn" type="button"
-                    class="btn btn-success border-success text-white btn-lg shadow-sm btn-circle mr-4"><i
+                    class="btn btn-success text-white btn-lg shadow-sm btn-circle mr-4"><i
                         class="fal fa-save"></i></button>
             </div>
         </div>
