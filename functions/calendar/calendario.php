@@ -242,13 +242,23 @@ $annotazioni = $stmt->fetchAll(PDO::FETCH_ASSOC); ?>
                                 </span><a class="btn btn-indigo btn-circle"
                                     href="calendario.php?anno=<?php echo $anno; ?>&mese=<?php echo $mese; ?>&giorno=<?php echo $giorno; ?>&action=next"><i
                                         class="far fa-chevron-right"></i></a></div>
-                        </div><?php generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni); ?><button
-                            class="btn btn-primary btn-lg floating-btn" data-target="#newAppointmentModal"
-                            data-toggle="modal"><i class="fa fa-plus"></i></button>
-                        <button class="btn btn-orange btn-lg floating-btn2" data-target="#newAnnotationModal"
-                            data-toggle="modal">
-                            <i class="fa fa-sticky-note"></i>
+                        </div><?php generaVistaSettimana($anno, $mese, $giorno, $appuntamenti, $annotazioni); ?>
+                        <button class="btn btn-indigo btn-lg floating-btn dropdown" type="button"
+                            id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-plus fa-xl"></i>
                         </button>
+                        <div class="dropdown-menu mb-2 mr-1 shadow-sm" aria-labelledby="dropdownMenuButton">
+                            <button class="dropdown-item p-2 h5 btn-block text-primary dropdown-custom-item"
+                                data-target="#newAppointmentModal" data-toggle="modal"><i class="fa fa-plus"></i>
+                                APPUNTAMENTO</button>
+                            <hr class="dropdown-divider">
+                            <button class="dropdown-item p-2 h5 btn-block text-orange dropdown-custom-item"
+                                data-target="#newAnnotationModal" data-toggle="modal">
+                                <i class="fa fa-sticky-note"></i> PROMEMORIA
+                            </button>
+                        </div>
+
+
                         <?php include(BASE_PATH . "/functions/notification/notification.php"); ?>
                     </div>
                 </div>

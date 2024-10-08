@@ -81,7 +81,7 @@ foreach ($risultatiClienti as $cliente) {
             <div id="content">
                 <?php include(BASE_PATH . "/components/topbar.php"); ?>
                 <div class="container-fluid">
-                    <h1 class="h3 mb-4 text-gray-800" >Gestione Servizi</h1>
+                    <h1 class="h3 mb-4 text-gray-800">Gestione Servizi</h1>
                     <!-- Tabella Servizi -->
                     <?php include(BASE_PATH . "/functions/notification/notification.php"); ?>
                     <div class="card mb-4 shadow-sm">
@@ -132,6 +132,10 @@ foreach ($risultatiClienti as $cliente) {
                                                         <i class="fal fa-pencil"></i> MODIFICA
                                                     </a>
                                                     <hr>
+                                                    <a class="dropdown-item history-btn h6"
+                                                        href="servStory.php?id=<?php echo $servizio['id_servizio']; ?>"><i
+                                                            class="fal fa-history"></i> CRONOLOGIA</a>
+                                                    <hr>
                                                     <a class="dropdown-item h6" href="#" data-toggle="modal"
                                                         data-target="#deleteServizioModal"
                                                         data-id="<?php echo $servizio['id_servizio']; ?>">
@@ -157,7 +161,7 @@ foreach ($risultatiClienti as $cliente) {
                     <span class="h6 font-weight-bold text-white p-1 text-center bg-indigo "
                         style="widht:100%;">SERVIZIO</span>
                     <div class="modal-header">
-                        <h5 class="modal-title" id="clientiServizioModalLabel">Clienti per Servizio</h5>
+                        <h5 class="modal-title" id="clientiServizioModalLabel">In Programma</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
