@@ -52,12 +52,18 @@ $totali = $stmtSomme->fetch(PDO::FETCH_ASSOC);
 <link href="custom.css" rel="stylesheet">
 
 <body>
+
     <div id="wrapper">
         <?php include(BASE_PATH . "/components/navbar.php"); ?>
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <?php include(BASE_PATH . "/components/topbar.php"); ?>
+
                 <div class="container-fluid">
+                    <ol class="breadcrumb mb-4">
+                        <li class="breadcrumb-item"><a href="services">Servizi</a></li>
+                        <li class="breadcrumb-item active">Resoconto</li>
+                    </ol>
                     <h1 class="h3 mb-4 text-gray-800 d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <i class="fas text-indigo fa-spa fa-xl mr-2"></i>

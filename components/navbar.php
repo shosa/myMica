@@ -59,6 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
         </a>
     </li>
     <hr class="sidebar-divider">
+    <li class="nav-item">
+        <a id="statistiche" class="nav-link collapsed" href="<?php echo BASE_URL ?>/functions/statistics/home"
+            aria-expanded="true" aria-controls="collapseProd">
+            <i class="far fa-chart-pie"></i>
+            <span>Statistiche</span>
+        </a>
+    </li>
+    <hr class="sidebar-divider">
 </ul>
 <style>
     .border-width-6 {
@@ -104,6 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_navbar'])) {
             '/functions/calendar/calendario': 'calendario',
             '/functions/services/services': 'servizi',
             '/functions/customers/customers': 'clienti',
+            '/functions/statistics/home': 'statistiche',
 
 
             // Aggiungi qui altri link come necessario
